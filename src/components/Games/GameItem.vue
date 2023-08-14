@@ -1,29 +1,27 @@
 <script setup>
 defineProps({
-  title: String,
-  imageSrc: String,
-  provider: String
+  game: { type: Object, required: true },
 });
 </script>
 
 <template>
   <div class="card">
-    <div class="title">{{ title }}</div>
+    <div class="title">{{ game.title }}</div>
     <div class="content">
-      <img :src="imageSrc" alt="Card Image" loading="lazy" />
+      <img :src="game.imageSrc" alt="Card Image" loading="lazy" />
     </div>
     <div class="provider">
-      <div class="chip">{{ provider }}</div>
+      <div class="chip">{{ game.provider }}</div>
     </div>
   </div>
 </template>
 
 <style scoped>
 .card {
-  min-width: 12.5rem;
+  display: flex;
+  flex-direction: column;
   background-color: white;
   border-radius: 8px;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
   overflow: hidden;
 }
 
@@ -44,7 +42,7 @@ defineProps({
 
 .content img {
   max-width: 100%;
-  min-height: 12.5rem;
+  height: 15rem;
 }
 
 .provider {
