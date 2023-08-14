@@ -1,11 +1,11 @@
 <script setup>
-import NavigationBar from './NavigationBar.vue';
+import AppNavigation from './AppNavigation.vue';
 </script>
 
 <template>
   <div class="page">
     <header class="header">
-      <NavigationBar />
+      <AppNavigation />
     </header>
     <main class="content">
       <slot></slot>

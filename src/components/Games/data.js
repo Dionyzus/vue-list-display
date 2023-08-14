@@ -7,7 +7,7 @@ import poker from '@/assets/poker.jpg';
 import roulette from '@/assets/roulette.jpg';
 import slot from '@/assets/slot.jpg';
 
-import { CATEGORIES,PROVIDERS } from '../../common/constants';
+import { CATEGORIES, PROVIDERS, VOLATILITY } from '../../common/constants';
 
 const GAMES = [{
   id: uuidv4(),
@@ -19,7 +19,10 @@ const GAMES = [{
       fruit machine that you can find in a typical land-based casino.
       The online versions usually come with additional symbols such as scatter
       symbols, wild symbols, and interactive bonus rounds.`,
-  imageSrc: bars
+  imageSrc: bars,
+  RTP: '90%',
+  volatility: VOLATILITY.MEDIUM
+
 }, {
   id: uuidv4(),
   title: 'Cards',
@@ -31,7 +34,9 @@ const GAMES = [{
       come out as a winner. In a typical blackjack game, the dealer and the
       player receive two cards each at the game's start. The house usually
       has the upper hand as there several rules that favor the house.`,
-  imageSrc: cards
+  imageSrc: cards,
+  RTP: '95%',
+  volatility: VOLATILITY.MEDIUM
 }, {
   id: uuidv4(),
   title: 'Jackpot',
@@ -43,7 +48,9 @@ const GAMES = [{
       feature hundreds of thousands of titles that almost guarantee wins.
       Many of these slots also have an enticing bonus round with
       a sky-high payback percentage.`,
-  imageSrc: jackpot
+  imageSrc: jackpot,
+  RTP: '97%',
+  volatility: VOLATILITY.HIGH
 }, {
   id: uuidv4(),
   title: 'Poker',
@@ -54,7 +61,9 @@ const GAMES = [{
       skill, and the players have to make decisions that will affect the
       results/ outcome. The odds in a typical video poker machine rival in
       those you can find on other casino games if you are skillful.`,
-  imageSrc: poker
+  imageSrc: poker,
+  RTP: '93%',
+  volatility: VOLATILITY.HIGH
 }, {
   id: uuidv4(),
   title: 'Roulette',
@@ -67,7 +76,9 @@ const GAMES = [{
       a live dealer, a real ball, a real layout, and a real wheel.
       There have been changes to the rules, but the basic ones have
       remained the same over the years.`,
-  imageSrc: roulette
+  imageSrc: roulette,
+  RTP: '95%',
+  volatility: VOLATILITY.LOW
 }, {
   id: uuidv4(),
   title: 'Slot',
@@ -80,7 +91,9 @@ const GAMES = [{
       The number of pay lines will vary from one game to the other.
       They can be 25 or 50, where certain combinations will trigger a payout.
       A player gets high returns when he or she hits high-value symbols.`,
-  imageSrc: slot
+  imageSrc: slot,
+  RTP: '95%',
+  volatility: VOLATILITY.LOW
 }];
 
 export default GAMES;

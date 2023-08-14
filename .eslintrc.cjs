@@ -18,7 +18,7 @@ module.exports = {
     'max-len': [
       'error', {
         comments: 120,
-        code: 80
+        code: 100
       }],
     indent: ['error', 2],
     semi: [

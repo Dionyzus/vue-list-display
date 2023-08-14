@@ -25,3 +25,9 @@ export const CATEGORIES = {
   VR_SLOTS: 'VR Slots',
   POKER: 'Poker'
 };
+
+export const VOLATILITY = {
+  LOW: 'Low',
+  MEDIUM: 'Medium',
+  HIGH: 'High'
+};

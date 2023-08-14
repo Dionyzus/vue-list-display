@@ -1,5 +1,5 @@
 <script setup>
-import AppPage from './components/AppPage.vue';
+import AppPage from './components/common/AppPage.vue';
 import GamesList from './components/Games/GamesList.vue';
 </script>
 
