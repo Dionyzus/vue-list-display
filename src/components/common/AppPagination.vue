@@ -26,10 +26,13 @@ export default {
   <div>
     <slot></slot>
     <div class="pagination">
-      <button type="button" :class="[
-        'button--link button--large',
-        { isActive: page === currentPage }
-      ]" v-for="page in pages" :key="page" @click="$emit('changePage', page)">
+      <button 
+        type="button"
+        :class="['button', { isActive: page === currentPage }]"
+        :key="page"
+        :disabled="page === currentPage"
+        v-for="page in pages"
+        @click="$emit('changePage', page)">
         {{ page }}
       </button>
     </div>
@@ -41,15 +44,19 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: 1rem;
 }
 
 button {
-  margin: 0 0.5rem;
+  margin: 0 0.15rem;
   padding: 0.25rem 0.5rem;
   border: 1px solid #ccc;
   border-radius: 4px;
   background-color: #f0f0f0;
   cursor: pointer;
+}
+
+.isActive {
+  background-color: #003663;
+  color: white;
 }
 </style>

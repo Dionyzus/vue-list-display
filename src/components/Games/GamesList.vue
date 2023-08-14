@@ -21,10 +21,7 @@ function changePage(pageNumber) {
 </script>
 
 <template>
-  <AppPagination 
-    :itemCount="GAMES.length"
-    :itemsPerPage="itemsPerPage"
-    :currentPage="currentPage"
+  <AppPagination :itemCount="GAMES.length" :itemsPerPage="itemsPerPage" :currentPage="currentPage"
     @changePage="changePage">
     <div class="grid-layout">
       <GameItem v-for="game in displayedGames" :key="game.id" :game="game" />
