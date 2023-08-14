@@ -1,5 +1,5 @@
 <script setup>
-const item = { id: 1, name: 'Game 1' }
+const item = { id: 1, name: 'Game 1' };
 </script>
 
 <template>

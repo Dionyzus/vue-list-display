@@ -1,6 +1,6 @@
 <script setup>
 import AppPage from './components/AppPage.vue';
-import GamesList from './components/Games/GamesList.vue'
+import GamesList from './components/Games/GamesList.vue';
 </script>
 
 <template>
