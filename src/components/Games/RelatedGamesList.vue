@@ -4,11 +4,12 @@ import { computed, ref } from 'vue';
 import { findGamesByProvider } from '../../utils/query';
 import DialogGameCard from './DialogGameCard.vue';
 
+//TODO: extract pagination to separate component
 const props = defineProps({
   game: { type: Object, required: true }
 });
 
-const itemsPerPage = 1;
+const itemsPerPage = 4;
 const currentPage = ref(1);
 const selectedGameId = ref(props.game.id);
 const selectedGame = ref(props.game);
@@ -23,6 +24,7 @@ const displayedGames = computed(() => {
   return filteredGames.value.slice(startIndex, endIndex);
 });
 const pageCount = computed(() => Math.ceil(filteredGames.value.length / itemsPerPage));
+
 const goToPage = (page) => currentPage.value = page;
 
 const selectGame = (game) => {
@@ -66,7 +68,7 @@ const selectGame = (game) => {
 
 .secondary-title {
   display: flex;
-  justify-content: start;
+  justify-content: flex-start;
   font-size: 1.25rem;
   font-weight: bold;
 }
@@ -74,7 +76,7 @@ const selectGame = (game) => {
 .grid-layout {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 1.25rem;
+  grid-gap: 1.25rem;
   padding: 1.25rem 0 0.25rem 0;
 }
 

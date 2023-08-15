@@ -9,7 +9,7 @@ const props = defineProps({
 
 const selectedGame = ref(props.game);
 
-const setSelectedGame = (game) => selectedGame.value = game;
+const setSelectedGame = game => selectedGame.value = game;
 </script>
 
 <template>
@@ -36,6 +36,7 @@ const setSelectedGame = (game) => selectedGame.value = game;
   font-size: 1.5rem;
   font-weight: bold;
   margin-bottom: 0.625rem;
+  text-transform: capitalize;
 }
 
 .provider {
