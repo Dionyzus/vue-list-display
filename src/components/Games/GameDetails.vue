@@ -1,41 +1,15 @@
 <script setup>
-import { computed, ref } from 'vue';
+import { ref } from 'vue';
 
-import { findGamesByProvider } from '../../utils/query';
-import DialogGameCard from './DialogGameCard.vue';
+import RelatedGamesList from './RelatedGamesList.vue';
 
 const props = defineProps({
   game: { type: Object, required: true }
 });
 
-const itemsPerPage = 1;
-const currentPage = ref(1);
-const selectedGameId = ref(props.game.id);
 const selectedGame = ref(props.game);
 
-const filteredGames = computed(() => {
-  return findGamesByProvider(props.game.provider);
-});
-
-const displayedGames = computed(() => {
-  const startIndex = (currentPage.value - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-
-  return filteredGames.value.slice(startIndex, endIndex);
-});
-
-const pageCount = computed(() =>
-  Math.ceil(filteredGames.value.length / itemsPerPage)
-);
-
-function goToPage(page) {
-  currentPage.value = page;
-}
-
-const selectGame = (game) => {
-  selectedGameId.value = game.id;
-  selectedGame.value = game;
-};
+const setSelectedGame = (game) => selectedGame.value = game;
 </script>
 
 <template>
@@ -54,22 +28,7 @@ const selectGame = (game) => {
       {{ category }}
     </div>
   </div>
-  <div class="grid-layout">
-    <DialogGameCard 
-      v-for="game in displayedGames" 
-      :key="game.id"
-      :game="game"
-      :selectedId="selectedGameId"
-      @click="selectGame(game)" />
-  </div>
-  <div class="pagination">
-    <button @click="goToPage(currentPage - 1)" :disabled="currentPage === 1">
-      &lt; Previous
-    </button>
-    <button @click="goToPage(currentPage + 1)" :disabled="currentPage === pageCount">
-      Next &gt;
-    </button>
-  </div>
+  <RelatedGamesList :game="game" @selectedGame="setSelectedGame" />
 </template>
 
 <style scoped>
@@ -121,12 +80,5 @@ const selectGame = (game) => {
   background-color: #9fb9ff;
   border-radius: 1rem;
   font-size: 0.85rem;
-}
-
-.grid-layout {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1.25rem;
-  padding: 1.25rem 0 0.25rem 0;
 }
 </style>

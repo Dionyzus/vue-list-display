@@ -15,9 +15,7 @@ const displayedGames = computed(() => {
   return GAMES.slice(startIndex, endIndex);
 });
 
-function changePage(pageNumber) {
-  currentPage.value = pageNumber;
-}
+const changePage = (pageNumber) => currentPage.value = pageNumber;
 </script>
 
 <template>

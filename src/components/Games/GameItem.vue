@@ -11,9 +11,7 @@ defineProps({
   game: { type: Object, required: true },
 });
 
-const isModalVisible = (value) => {
-  isVisible.value = value;
-};
+const isModalVisible = (value) => isVisible.value = value;
 </script>
 
 <template>

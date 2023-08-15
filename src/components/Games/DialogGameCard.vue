@@ -6,10 +6,7 @@ const props = defineProps({
   selectedId: {type: String, required: true}
 });
 
-const isSelected = computed(() => {
-  return props.game.id === props.selectedId;
-});
-
+const isSelected = computed(() => props.game.id === props.selectedId);
 </script>
 
 <template>
