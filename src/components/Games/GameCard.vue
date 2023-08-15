@@ -1,5 +1,5 @@
 <script setup>
-import { defineProps, ref } from 'vue';
+import { ref } from 'vue';
 
 defineProps({
   game: { type: Object, required: true }
@@ -32,12 +32,13 @@ const isHovered = ref(false);
 .card {
   display: flex;
   flex-direction: column;
-  background-color: white;
   border-radius: 8px;
   overflow: hidden;
 }
 
 .modal-trigger {
+  min-width: 8.5rem;
+  min-height: 2.5rem;
   position: absolute;
   top: 50%;
   left: 50%;
@@ -51,6 +52,7 @@ const isHovered = ref(false);
   transition: background-color 0.3s ease;
   display: none;
   text-transform: uppercase;
+  font-size: medium;
 }
 
 .card:hover .modal-trigger {

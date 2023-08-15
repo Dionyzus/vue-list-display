@@ -40,7 +40,7 @@ const GAMES = [{
 }, {
   id: uuidv4(),
   title: 'Jackpot',
-  provider: PROVIDERS.ELK_STUDIOS,
+  provider: PROVIDERS.AMUSNET_INTERACTIVE_LTD,
   categories: [CATEGORIES.CLASSIC_SLOTS, CATEGORIES.VR_SLOTS],
   description: `Thanks to new high-paying features and innovative gameplay,
       the best games at slots sites nowadays have millions of fans.
