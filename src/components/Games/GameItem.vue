@@ -1,10 +1,3 @@
-<template>
-  <GameCard :game="game" @isModalVisible="isModalVisible" />
-  <AppDialog :is-visible="isVisible" @isModalVisible="isModalVisible">
-    <GameDetails :game="game" />
-  </AppDialog>
-</template>
-
 <script setup>
 import { ref } from 'vue';
 
@@ -22,3 +15,10 @@ const isModalVisible = (value) => {
   isVisible.value = value;
 };
 </script>
+
+<template>
+  <GameCard :game="game" @isModalVisible="isModalVisible" />
+  <AppDialog :is-visible="isVisible" @isModalVisible="isModalVisible">
+    <GameDetails :game="game" />
+  </AppDialog>
+</template>
