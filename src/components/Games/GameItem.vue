@@ -15,8 +15,16 @@ const isModalVisible = (value) => isVisible.value = value;
 </script>
 
 <template>
-  <GameCard :game="game" @isModalVisible="isModalVisible" />
-  <AppDialog :is-visible="isVisible" @isModalVisible="isModalVisible">
-    <GameDetails :game="game" />
-  </AppDialog>
+  <div class="grid-item">
+    <GameCard :game="game" @isModalVisible="isModalVisible" />
+    <AppDialog :is-visible="isVisible" @isModalVisible="isModalVisible">
+      <GameDetails :game="game" />
+    </AppDialog>
+  </div>
 </template>
+
+<style scoped>
+.grid-item {
+  width: 100%;
+}
+</style>

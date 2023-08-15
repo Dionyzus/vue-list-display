@@ -1,5 +1,5 @@
-import GAMES from "../components/Games/data";
+import availableGames from "../components/Games/data";
 
 export const findGamesByProvider = (provider) => {
-  return GAMES.filter(game => game.provider === provider);
+  return availableGames.filter(game => game.provider === provider);
 };

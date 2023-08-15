@@ -7,7 +7,8 @@ import poker from '@/assets/poker.jpg';
 import roulette from '@/assets/roulette.jpg';
 import slot from '@/assets/slot.jpg';
 
-import { CATEGORIES, PROVIDERS, VOLATILITY } from '../../common/constants';
+import { CATEGORIES, PROVIDERS, VOLATILITIES } from '../../common/constants';
+import { generateMockData } from '../../utils/data';
 
 const GAMES = [{
   id: uuidv4(),
@@ -21,7 +22,7 @@ const GAMES = [{
       symbols, wild symbols, and interactive bonus rounds.`,
   imageSrc: bars,
   RTP: '90%',
-  volatility: VOLATILITY.MEDIUM
+  volatility: VOLATILITIES.MEDIUM
 
 }, {
   id: uuidv4(),
@@ -36,7 +37,7 @@ const GAMES = [{
       has the upper hand as there several rules that favor the house.`,
   imageSrc: cards,
   RTP: '95%',
-  volatility: VOLATILITY.MEDIUM
+  volatility: VOLATILITIES.MEDIUM
 }, {
   id: uuidv4(),
   title: 'Jackpot',
@@ -50,7 +51,7 @@ const GAMES = [{
       a sky-high payback percentage.`,
   imageSrc: jackpot,
   RTP: '97%',
-  volatility: VOLATILITY.HIGH
+  volatility: VOLATILITIES.HIGH
 }, {
   id: uuidv4(),
   title: 'Poker',
@@ -63,7 +64,7 @@ const GAMES = [{
       those you can find on other casino games if you are skillful.`,
   imageSrc: poker,
   RTP: '93%',
-  volatility: VOLATILITY.HIGH
+  volatility: VOLATILITIES.HIGH
 }, {
   id: uuidv4(),
   title: 'Roulette',
@@ -78,7 +79,7 @@ const GAMES = [{
       remained the same over the years.`,
   imageSrc: roulette,
   RTP: '95%',
-  volatility: VOLATILITY.LOW
+  volatility: VOLATILITIES.LOW
 }, {
   id: uuidv4(),
   title: 'Slot',
@@ -93,7 +94,10 @@ const GAMES = [{
       A player gets high returns when he or she hits high-value symbols.`,
   imageSrc: slot,
   RTP: '95%',
-  volatility: VOLATILITY.LOW
+  volatility: VOLATILITIES.LOW
 }];
 
-export default GAMES;
+const mockData = generateMockData(150);
+const availableGames = GAMES.concat(mockData);;
+
+export default availableGames;

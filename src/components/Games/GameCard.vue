@@ -32,7 +32,7 @@ const isHovered = ref(false);
 .card {
   display: flex;
   flex-direction: column;
-  border-radius: 8px;
+  border-radius: 0.5rem;
   overflow: hidden;
 }
 
@@ -66,11 +66,11 @@ const isHovered = ref(false);
 .title {
   display: flex;
   justify-content: center;
-  padding: 1rem;
+  padding: 0.75rem;
   background-color: #4e0000;
   color: white;
   font-size: 1.2rem;
-  text-transform: uppercase;
+  text-transform: capitalize;
   transition: filter 0.3s ease;
 }
 
@@ -98,7 +98,7 @@ const isHovered = ref(false);
 .provider {
   display: flex;
   justify-content: center;
-  padding: 0.75rem;
+  padding: 0.5rem;
   background-color: #6a49ff;
   transition: filter 0.3s ease;
 }
@@ -111,8 +111,8 @@ const isHovered = ref(false);
   display: flex;
   justify-content: center;
   min-width: 10rem;
-  padding: 0.5rem;
+  padding: 0.25rem 0.5rem;
   background-color: #9fb9ff;
-  border-radius: 16px;
+  border-radius: 0.75rem;
 }
 </style>

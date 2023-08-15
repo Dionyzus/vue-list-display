@@ -1,3 +1,13 @@
+import bars from '@/assets/bars.jpg';
+import cards from '@/assets/cards.jpg';
+import jackpot from '@/assets/jackpot.jpg';
+import poker from '@/assets/poker.jpg';
+import roulette from '@/assets/roulette.jpg';
+import slot from '@/assets/slot.jpg';
+
+export const IMAGE_SOURCES = [bars, cards, jackpot, poker, roulette, slot];
+export const RTP_VALUES = ['85%', '90%', '95%', '92%', '97%'];
+
 export const PROVIDERS = {
   PLAYTECH: 'Playtech',
   BETSOFT: 'Betsoft',
@@ -26,7 +36,7 @@ export const CATEGORIES = {
   POKER: 'Poker'
 };
 
-export const VOLATILITY = {
+export const VOLATILITIES = {
   LOW: 'Low',
   MEDIUM: 'Medium',
   HIGH: 'High'
