@@ -9,13 +9,8 @@ export default {
     currentPage: { type: Number, required: true }
   },
   setup(props) {
-    const pageCount = computed(() =>
-      Math.ceil(props.itemCount / props.itemsPerPage)
-    );
-
-    const pages = computed(() => {
-      return Array.from({ length: pageCount.value }, (_, i) => i + 1);
-    });
+    const pageCount = computed(() =>Math.ceil(props.itemCount / props.itemsPerPage));
+    const pages = computed(() =>  Array.from({ length: pageCount.value }, (_, i) => i + 1));
 
     return { pageCount, pages };
   }
@@ -53,6 +48,10 @@ button {
   border-radius: 4px;
   background-color: #f0f0f0;
   cursor: pointer;
+}
+
+.button[disabled] {
+  cursor: not-allowed;
 }
 
 .isActive {
