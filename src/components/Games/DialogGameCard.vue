@@ -28,9 +28,10 @@ const isSelected = computed(() => props.game.id === props.selectedId);
   position: relative;
   overflow: hidden;
   cursor: pointer;
-}
-
-.card {
+  margin-bottom: 1rem;
+  background-color: #f3f4f6;
+  border-radius: 0.5rem;
+  box-shadow: 0 0.375rem 0.25rem rgba(0, 0, 0, 0.1);
   transition: border 0.1s ease, box-shadow 0.1s ease;
 }
 
@@ -40,12 +41,21 @@ const isSelected = computed(() => props.game.id === props.selectedId);
 }
 
 .card.selected::after {
+  content: '';
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   background-color: #3490dc;
+  opacity: 0.1;
 }
 
 .title {
   display: flex;
   justify-content: center;
+  align-items: center;
   padding: 0.25rem;
   background-color: #4e0000;
   color: white;
@@ -57,10 +67,28 @@ const isSelected = computed(() => props.game.id === props.selectedId);
   display: flex;
   justify-content: center;
   align-items: center;
+  overflow: hidden;
+  padding: 0.75rem;
 }
 
 .content img {
   max-width: 100%;
-  min-height: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+@media screen and (min-width: 768px) {
+  .card {
+    margin-bottom: 0;
+    height: auto;
+  }
+
+  .title {
+    font-size: 0.85rem;
+  }
+
+  .content {
+    padding: 0.75rem;
+  }
 }
 </style>

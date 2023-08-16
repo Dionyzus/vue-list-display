@@ -18,7 +18,7 @@ const isModalVisible = (value) => isVisible.value = value;
   <div class="grid-item">
     <GameCard :game="game" @isModalVisible="isModalVisible" />
     <AppDialog :is-visible="isVisible" @isModalVisible="isModalVisible">
-      <GameDetails :game="game" />
+      <GameDetails :game="game"/>
     </AppDialog>
   </div>
 </template>
@@ -26,5 +26,12 @@ const isModalVisible = (value) => isVisible.value = value;
 <style scoped>
 .grid-item {
   width: 100%;
+  padding: 0.25rem;
+}
+
+@media screen and (min-width: 768px) {
+  .grid-item {
+    padding: 0.5rem;
+  }
 }
 </style>

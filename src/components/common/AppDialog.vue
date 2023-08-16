@@ -1,6 +1,6 @@
 <script setup>
 defineProps({
-  isVisible: Boolean,
+  isVisible: { type: Boolean, default: false }
 });
 
 const emit = defineEmits(['isModalVisible']);
@@ -10,7 +10,6 @@ const handleClickOutside = (event) => {
     emit('isModalVisible', false);
   }
 };
-
 </script>
 
 <template>
@@ -29,7 +28,6 @@ const handleClickOutside = (event) => {
 <style scoped>
 .modal-container {
   position: fixed;
-  padding: 5rem;
   top: 0;
   left: 0;
   width: 100%;
@@ -45,12 +43,18 @@ const handleClickOutside = (event) => {
   background-color: white;
   border-radius: 0.75rem;
   overflow: auto;
+  padding: 0.75rem;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  max-width: 64rem;
+  margin: 1rem;
+  max-height: calc(100% - 2rem);
 }
 
 .modal-header {
   display: flex;
   justify-content: flex-end;
-  padding: 0.25rem 1rem;
+  padding: 0.25rem 0.25rem;
 }
 
 .modal-close {
@@ -63,8 +67,16 @@ const handleClickOutside = (event) => {
 .modal-body {
   display: flex;
   flex-direction: column;
-  max-width: 64rem;
-  padding: 1.25rem;
-  padding-top: 0;
+}
+
+@media screen and (min-width: 768px) {
+  .modal-content {
+    padding: 1.25rem;
+    margin: 2rem;
+  }
+
+  .modal-header {
+    padding: 0.25rem 1rem;
+  }
 }
 </style>
