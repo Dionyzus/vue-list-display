@@ -1,14 +1,10 @@
-<script setup>
-import AppNavigation from './AppNavigation.vue';
-</script>
-
 <template>
   <div class="page">
     <header class="header">
-      <AppNavigation />
+      <slot name="header"></slot>
     </header>
     <main class="content">
-      <slot></slot>
+      <slot name="content"></slot>
     </main>
   </div>
 </template>
@@ -20,9 +16,10 @@ import AppNavigation from './AppNavigation.vue';
 
 .header {
   background-color: #630000;
+  color: white;
   padding: 1rem;
-  position: fixed;
   text-align: center;
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
@@ -31,6 +28,20 @@ import AppNavigation from './AppNavigation.vue';
 
 .content {
   display: flex;
+  flex-direction: column;
+  margin-top: 2rem;
+  padding: 1rem;
+}
+
+@media screen and (max-width: 768px) {
+  .header {
+    padding: 0.5rem;
+  }
+
+  .content {
+    margin-top: 0.25rem;
+    padding: 0.5rem;
+  }
 }
 </style>
   

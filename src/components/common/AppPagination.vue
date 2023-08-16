@@ -83,7 +83,7 @@ const shouldDisplayTrailingEllipsis = computed(() => {
 
 <style scoped>
 .ellipsis {
-  margin: 0 0.35rem;
+  margin: 0 0.25rem;
   font-weight: bold;
 }
 
@@ -91,6 +91,7 @@ const shouldDisplayTrailingEllipsis = computed(() => {
   display: flex;
   justify-content: center;
   align-items: center;
+  margin-top: 1rem;
 }
 
 .min-max-button.hidden {
@@ -98,12 +99,13 @@ const shouldDisplayTrailingEllipsis = computed(() => {
 }
 
 button {
-  margin: 0 0.15rem;
+  margin: 0.15rem;
   padding: 0.25rem 0.5rem;
   border: 1px solid #ccc;
   border-radius: 4px;
   background-color: #f0f0f0;
   cursor: pointer;
+  font-size: 0.9rem;
 }
 
 .button[disabled] {

@@ -9,7 +9,10 @@ const isHovered = ref(false);
 </script>
 
 <template>
-  <div class="card" @mouseover="isHovered = true" @mouseout="isHovered = false">
+  <div 
+    class="card" @mouseover="isHovered = true"
+    @mouseout="isHovered = false"
+    @click="isHovered = true">
     <div class="title" :class="{ 'hovered': isHovered }">
       {{ game.title }}
     </div>
@@ -114,5 +117,15 @@ const isHovered = ref(false);
   padding: 0.25rem 0.5rem;
   background-color: #9fb9ff;
   border-radius: 0.75rem;
+}
+
+@media screen and (min-width: 768px) {
+  .card:hover .modal-trigger {
+    display: block;
+  }
+  
+  .provider.hovered {
+    filter: blur(0);
+  }
 }
 </style>

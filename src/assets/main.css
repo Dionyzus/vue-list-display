@@ -1,17 +1,39 @@
 @import './base.css';
 
 #app {
-  display: flex;
-  justify-content: center;
   max-width: 1280px;
   margin: 0 auto;
-  padding: 0 2rem;
+  padding: 2rem;
+
   font-weight: normal;
 }
 
 body {
-  display: flex;
-  margin-top: 5rem;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media screen and (min-width: 1024px) {
+  #app {
+    display: flex;
+    justify-content: center;
+    padding: 0 2rem;
+  }
+
+  body {
+    display: flex;
+    place-items: center;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  #app {
+    padding: 1rem;
+  }
+  
+  body {
+    margin-top: 3rem;
+  }
 }
 
 ::-webkit-scrollbar {
