@@ -6,13 +6,11 @@ import GamesList from './components/Games/GamesList.vue';
 
 <template>
   <AppPage>
-    <template #header>
+    <template v-slot:header>
       <AppNavigation />
     </template>
-    <template #content>
-      <GamesList/>
+    <template v-slot:content>
+      <GamesList />
     </template>
   </AppPage>
 </template>
-
-<style scoped></style>
