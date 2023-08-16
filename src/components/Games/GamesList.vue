@@ -45,6 +45,17 @@ const changePage = pageNumber => currentPage.value = pageNumber;
 
 @media screen and (min-width: 768px) {
   .game-grid {
+    padding: 1.5rem;
+  }
+
+  .grid-layout {
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+  }
+}
+
+@media screen and (min-width: 1280px) {
+  .game-grid {
     padding: 2rem;
   }
 
