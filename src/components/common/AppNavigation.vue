@@ -1,10 +1,18 @@
+<script setup>
+import { ref } from 'vue';
+
+const isNavOpen = ref(false);
+const toggleNav = () => isNavOpen.value = !isNavOpen.value;
+</script>
+
 <template>
-  <nav class="navbar">
+  <nav class="navbar" :style="{ minHeight: isNavOpen ? '0.75rem' : 'auto' }">
     <div>Online Casino</div>
     <button class="navbar-toggler" @click="toggleNav">
       <font-awesome-icon icon="bars" />
     </button>
-    <ul :class="['nav-links', { 'open': isNavOpen }]">
+    <ul 
+      :class="['nav-links', { 'open': isNavOpen }]" :aria-expanded="isNavOpen" aria-haspopup="true">
       <li><a href="#">SPORT</a></li>
       <li><a href="#">LIVE</a></li>
       <li><a href="#">LOTO</a></li>
@@ -12,13 +20,6 @@
     </ul>
   </nav>
 </template>
-
-<script setup>
-import { ref } from 'vue';
-
-const isNavOpen = ref(false);
-const toggleNav = () => isNavOpen.value = !isNavOpen.value;
-</script>
 
 <style scoped>
 .navbar {
@@ -28,6 +29,7 @@ const toggleNav = () => isNavOpen.value = !isNavOpen.value;
   background-color: #630000;
   color: white;
   padding: 0.25rem;
+  transition: min-height 0.3s ease-in-out;
 }
 
 .navbar-toggler {

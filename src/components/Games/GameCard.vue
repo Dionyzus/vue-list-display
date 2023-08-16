@@ -17,7 +17,8 @@ const isHovered = ref(false);
       {{ game.title }}
     </div>
     <div class="content">
-      <img :src="game.imageSrc" alt="Card Image" loading="lazy" :class="{ 'hovered': isHovered }" />
+      <img 
+        v-lazy="game.imageSrc" alt="Card Image" loading="lazy" :class="{ 'hovered': isHovered }" />
       <button class="modal-trigger" @click="$emit('isModalVisible', true)">
         <font-awesome-icon icon="info-circle" />
         <span class="trigger-text">Details</span>

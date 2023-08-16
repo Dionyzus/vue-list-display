@@ -17,7 +17,7 @@ const setSelectedGame = game => selectedGame.value = game;
     <h2 class="title">{{ selectedGame.title }}</h2>
     <div class="provider">{{ selectedGame.provider }}</div>
     <div class="image-and-summary">
-      <img :src="selectedGame.imageSrc" alt="Game Image" class="image" />
+      <img v-lazy="selectedGame.imageSrc" alt="Game Image" class="image" loading="lazy"/>
       <div class="summary">
         <div class="description">{{ selectedGame.description }}</div>
         <span>Volatility: <strong>{{ selectedGame.volatility }}</strong></span>
