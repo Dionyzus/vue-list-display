@@ -5,20 +5,20 @@ import AppDialog from '../common/AppDialog.vue';
 import GameCard from './GameCard.vue';
 import GameDetails from './GameDetails.vue';
 
-const isVisible = ref(false);
-
 defineProps({
   game: { type: Object, required: true },
 });
 
-const isModalVisible = (value) => isVisible.value = value;
+const isVisible = ref(false);
+
+const handleShowGameDetails = (value) => isVisible.value = value;
 </script>
 
 <template>
   <div class="grid-item">
-    <GameCard :game="game" @isModalVisible="isModalVisible" />
-    <AppDialog :is-visible="isVisible" @isModalVisible="isModalVisible">
-      <GameDetails :game="game"/>
+    <GameCard :game="game" @onShowGameDetails="handleShowGameDetails" />
+    <AppDialog :is-visible="isVisible" @onModalToggle="handleShowGameDetails">
+      <GameDetails :game="game" :isDetailsDialogOpen="isVisible"/>
     </AppDialog>
   </div>
 </template>

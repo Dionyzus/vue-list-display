@@ -1,36 +1,32 @@
 <script setup>
-import { computed, defineEmits,ref } from 'vue';
+import { computed, defineEmits } from 'vue';
 
-defineEmits(['changePage']);
+defineEmits(['onPageChange']);
 
 const props = defineProps({
   itemCount: { type: Number, required: true },
   itemsPerPage: { type: Number, default: 12 },
-  currentPage: { type: Number, required: true }
+  currentPage: { type: Number, required: true },
+  maxVisiblePages: { type: Number, default: 3 }
 });
-
-const maxVisiblePages = ref(3);
 
 const pageCount = computed(() => Math.ceil(props.itemCount / props.itemsPerPage));
 
-// default pages calculation without taking ranges into account
-//const pages = computed(() => Array.from({ length: pageCount.value }, (_, i) => i + 1));
-
 const visiblePages = computed(() => {
-  const startPage = Math.max(1, props.currentPage - Math.floor(maxVisiblePages.value / 2));
-  const endPage = Math.min(pageCount.value, startPage + maxVisiblePages.value - 1);
+  const startPage = Math.max(1, props.currentPage - Math.floor(props.maxVisiblePages / 2));
+  const endPage = Math.min(pageCount.value, startPage + props.maxVisiblePages - 1);
 
   return Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i);
 });
 
 const shouldDisplayLeadingEllipsis = computed(() => {
-  return visiblePages.value[0] > maxVisiblePages.value + 1;
+  return visiblePages.value[0] > props.maxVisiblePages + 1;
 });
 
 const shouldDisplayTrailingEllipsis = computed(() => {
   const currentVisiblePages = visiblePages.value[visiblePages.value.length - 1];
 
-  return currentVisiblePages < pageCount.value - maxVisiblePages.value;
+  return currentVisiblePages < pageCount.value - props.maxVisiblePages;
 });
 </script>
 
@@ -38,15 +34,20 @@ const shouldDisplayTrailingEllipsis = computed(() => {
   <div>
     <slot></slot>
     <div class="pagination">
-      <button @click="$emit('changePage', currentPage - 1)" :disabled="currentPage === 1">
+      <button
+        @click="$emit('onPageChange', currentPage - 1)"
+        :disabled="currentPage === 1"
+        class="page-number-btn"
+        aria-label="Previous Page"
+      >
         &lt;
       </button>
 
       <button
-        :class="['min-max-button', { 'hidden': currentPage <= maxVisiblePages }]"
+        :class="['page-number-btn', { 'hidden': currentPage <= maxVisiblePages }]"
         :key="1"
         :disabled="1 === currentPage"
-        @click="$emit('changePage', 1)"
+        @click="$emit('onPageChange', 1)"
       >
         1
       </button>
@@ -54,11 +55,11 @@ const shouldDisplayTrailingEllipsis = computed(() => {
       <span v-if="shouldDisplayLeadingEllipsis" class="ellipsis">...</span>
 
       <button
-        :class="['button', { 'active': page === currentPage }]"
+        :class="['page-number-btn', { 'active': page === currentPage }]"
         :key="page"
         :disabled="page === currentPage"
         v-for="page in visiblePages"
-        @click="$emit('changePage', page)"
+        @click="$emit('onPageChange', page)"
       >
         {{ page }}
       </button>
@@ -66,15 +67,20 @@ const shouldDisplayTrailingEllipsis = computed(() => {
       <span v-if="shouldDisplayTrailingEllipsis" class="ellipsis">...</span>
 
       <button
-        :class="['min-max-button', { 'hidden': currentPage >= pageCount - 1}]"
+        :class="['page-number-btn', { 'hidden': currentPage >= pageCount - 1}]"
         :key="pageCount"
         :disabled="pageCount === currentPage"
-        @click="$emit('changePage', pageCount)"
+        @click="$emit('onPageChange', pageCount)"
       >
         {{ pageCount }}
       </button>
 
-      <button @click="$emit('changePage', currentPage + 1)" :disabled="currentPage === pageCount">
+      <button
+        @click="$emit('onPageChange', currentPage + 1)"
+        :disabled="currentPage === pageCount"
+        class="page-number-btn"
+        aria-label="Next Page"
+      >
         &gt;
       </button>
     </div>
@@ -94,26 +100,26 @@ const shouldDisplayTrailingEllipsis = computed(() => {
   margin-top: 1rem;
 }
 
-.min-max-button.hidden {
-  display: none;
-}
-
-button {
+.page-number-btn {
   margin: 0.15rem;
   padding: 0.25rem 0.5rem;
   border: 1px solid #ccc;
   border-radius: 4px;
   background-color: #f0f0f0;
   cursor: pointer;
-  font-size: 0.9rem;
+  font-size: 1rem;
 }
 
-.button[disabled] {
+.page-number-btn[disabled] {
   cursor: not-allowed;
 }
 
-.active {
+.page-number-btn.active {
   background-color: #003663;
   color: white;
+}
+
+.page-number-btn.hidden {
+  display: none;
 }
 </style>

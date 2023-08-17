@@ -6,30 +6,28 @@ import DialogGameCard from './DialogGameCard.vue';
 import DialogPagination from './DialogPagination.vue';
 
 const props = defineProps({
-  game: { type: Object, required: true }
+  game: { type: Object, required: true },
+  itemsPerPage: { type: Number, default: 4 }
 });
 
-const itemsPerPage = 4;
 const currentPage = ref(1);
-const selectedGameId = ref(props.game.id);
 const selectedGame = ref(props.game);
 
-const emit = defineEmits(['selectedGame']);
+const emit = defineEmits(['onGameSelect']);
 
 const filteredGames = computed(() => findGamesByProvider(props.game.provider));
 const displayedGames = computed(() => {
-  const startIndex = (currentPage.value - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
+  const startIndex = (currentPage.value - 1) * props.itemsPerPage;
+  const endIndex = startIndex + props.itemsPerPage;
 
   return filteredGames.value.slice(startIndex, endIndex);
 });
 
-const goToPage = (page) => currentPage.value = page;
+const handlePageChange = (page) => currentPage.value = page;
 
 const selectGame = (game) => {
-  selectedGameId.value = game.id;
   selectedGame.value = game;
-  emit("selectedGame", game);
+  emit("onGameSelect", game);
 };
 </script>
 
@@ -38,10 +36,10 @@ const selectGame = (game) => {
     <h3 class="secondary-title">More from {{ game.provider }}</h3>
     <DialogPagination 
       :itemCount="filteredGames.length" :itemsPerPage="itemsPerPage" :currentPage="currentPage"
-      @goToPage="goToPage">
+      @onPageChange="handlePageChange">
       <div class="grid-layout">
         <DialogGameCard 
-          v-for="game in displayedGames" :key="game.id" :game="game" :selectedId="selectedGameId"
+          v-for="game in displayedGames" :key="game.id" :game="game" :selectedId="selectedGame.id"
           @click="selectGame(game)" />
       </div>
     </DialogPagination>
