@@ -10,7 +10,8 @@ const isHovered = ref(false);
 
 <template>
   <div 
-    class="card" @mouseover="isHovered = true"
+    class="card" 
+    @mouseover="isHovered = true"
     @mouseout="isHovered = false"
     @click="isHovered = true">
     <div class="title" :class="{ 'hovered': isHovered }">
@@ -18,8 +19,14 @@ const isHovered = ref(false);
     </div>
     <div class="content">
       <img 
-        v-lazy="game.imageSrc" alt="Card Image" loading="lazy" :class="{ 'hovered': isHovered }" />
-      <button class="modal-trigger" @click="$emit('isModalVisible', true)">
+        v-lazy="game.imageSrc" 
+        alt="Game Image" 
+        loading="lazy" 
+        :class="{ 'hovered': isHovered }" />
+      <button 
+        class="modal-trigger" 
+        @click="$emit('onShowGameDetails', true)"
+        aria-label="View Details">
         <font-awesome-icon icon="info-circle" />
         <span class="trigger-text">Details</span>
       </button>
@@ -126,7 +133,7 @@ const isHovered = ref(false);
   }
   
   .provider.hovered {
-    filter: blur(0);
+    filter: blur(2px);
   }
 }
 </style>

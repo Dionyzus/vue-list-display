@@ -4,12 +4,13 @@ import { ref } from 'vue';
 import RelatedGamesList from './RelatedGamesList.vue';
 
 const props = defineProps({
-  game: { type: Object, required: true }
+  game: { type: Object, required: true },
+  isDetailsDialogOpen: { type: Boolean, required: true }
 });
 
 const selectedGame = ref(props.game);
 
-const setSelectedGame = game => selectedGame.value = game;
+const handleGameSelect = newGame => selectedGame.value = newGame;
 </script>
 
 <template>
@@ -17,11 +18,11 @@ const setSelectedGame = game => selectedGame.value = game;
     <h2 class="title">{{ selectedGame.title }}</h2>
     <div class="provider">{{ selectedGame.provider }}</div>
     <div class="image-and-summary">
-      <img v-lazy="selectedGame.imageSrc" alt="Game Image" class="image" loading="lazy"/>
+      <img v-lazy="selectedGame.imageSrc" alt="Game Image" class="image" loading="lazy" />
       <div class="summary">
         <div class="description">{{ selectedGame.description }}</div>
-        <span>Volatility: <strong>{{ selectedGame.volatility }}</strong></span>
-        <span>RTP: <strong>{{ selectedGame.RTP }}</strong></span>
+        <p>Volatility: <strong>{{ selectedGame.volatility }}</strong></p>
+        <p>RTP: <strong>{{ selectedGame.RTP }}</strong></p>
       </div>
     </div>
     <div class="chips">
@@ -29,7 +30,7 @@ const setSelectedGame = game => selectedGame.value = game;
         {{ category }}
       </div>
     </div>
-    <RelatedGamesList :game="game" @selectedGame="setSelectedGame" />
+    <RelatedGamesList v-if="isDetailsDialogOpen" :game="game" @onGameSelect="handleGameSelect" />
   </div>
 </template>
 

@@ -1,22 +1,28 @@
 <script setup>
+import { defineEmits, onBeforeUnmount } from 'vue';
+
 defineProps({
   isVisible: { type: Boolean, default: false }
 });
 
-const emit = defineEmits(['isModalVisible']);
+const emit = defineEmits(['onModalToggle']);
 
 const handleClickOutside = (event) => {
   if (!event.target.closest('.modal-content')) {
-    emit('isModalVisible', false);
+    emit('onModalToggle', false);
   }
 };
+
+onBeforeUnmount(() => {
+  window.removeEventListener('click', handleClickOutside);
+});
 </script>
 
 <template>
-  <div class="modal-container" v-if="isVisible" @click="handleClickOutside">
+  <div class="modal-container" v-show="isVisible" @click="handleClickOutside">
     <div class="modal-content" @click.stop>
       <div class="modal-header">
-        <button @click="$emit('isModalVisible', false)" class="modal-close">&times;</button>
+        <button @click="emit('onModalToggle', false)" class="modal-close">&times;</button>
       </div>
       <div class="modal-body">
         <slot></slot>

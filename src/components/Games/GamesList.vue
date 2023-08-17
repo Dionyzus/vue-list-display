@@ -8,14 +8,14 @@ import GameItem from './GameItem.vue';
 const itemsPerPage = ref(12);
 const currentPage = ref(1);
 
-const displayedGames = computed(() => {
+const gamesOnCurrentPage = computed(() => {
   const startIndex = (currentPage.value - 1) * itemsPerPage.value;
   const endIndex = startIndex + itemsPerPage.value;
 
   return availableGames.slice(startIndex, endIndex);
 });
 
-const changePage = pageNumber => currentPage.value = pageNumber;
+const handlePageChange = pageNumber => currentPage.value = pageNumber;
 </script>
 
 <template>
@@ -24,9 +24,9 @@ const changePage = pageNumber => currentPage.value = pageNumber;
       :itemCount="availableGames.length"
       :itemsPerPage="itemsPerPage"
       :currentPage="currentPage"
-      @changePage="changePage">
+      @onPageChange="handlePageChange">
       <div class="grid-layout">
-        <GameItem v-for="game in displayedGames" :key="game.id" :game="game" />
+        <GameItem v-for="game in gamesOnCurrentPage" :key="game.id" :game="game" />
       </div>
     </AppPagination>
   </div>

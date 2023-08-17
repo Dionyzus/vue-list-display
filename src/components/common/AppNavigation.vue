@@ -8,7 +8,7 @@ const toggleNav = () => isNavOpen.value = !isNavOpen.value;
 <template>
   <nav class="navbar" :style="{ minHeight: isNavOpen ? '0.75rem' : 'auto' }">
     <div>Online Casino</div>
-    <button class="navbar-toggler" @click="toggleNav">
+    <button class="navbar-toggler" @click="toggleNav" aria-label="Toggle Navigation">
       <font-awesome-icon icon="bars" />
     </button>
     <ul 

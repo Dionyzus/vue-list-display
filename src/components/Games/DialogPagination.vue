@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue';
+import { computed, defineEmits } from 'vue';
 
 const props = defineProps({
   itemCount: { type: Number, required: true },
@@ -7,25 +7,38 @@ const props = defineProps({
   currentPage: { type: Number, required: true }
 });
 
-defineEmits(['goToPage']);
+defineEmits(['onPageChange']);
 
 const pageCount = computed(() => Math.ceil(props.itemCount / props.itemsPerPage));
+
+const isPrevButtonDisabled = computed(() => props.currentPage === 1);
+const isNextButtonDisabled = computed(() => props.currentPage === pageCount.value);
 </script>
 
 <template>
   <div class="pagination-arrows">
-    <button 
-      class="pagination-arrow"
-      @click="$emit('goToPage', currentPage - 1)"
-      :disabled="currentPage === 1">
-      <font-awesome-icon :icon="['fas', 'chevron-left']" />
-    </button>
-    <slot></slot>
     <button
       class="pagination-arrow"
-      @click="$emit('goToPage', currentPage + 1)"
-      :disabled="currentPage === pageCount">
-      <font-awesome-icon :icon="['fas', 'chevron-right']" />
+      @click="$emit('onPageChange', currentPage - 1)"
+      :disabled="isPrevButtonDisabled"
+      aria-label="Previous Page"
+    >
+      <slot name="prev-icon">
+        <font-awesome-icon :icon="['fas', 'chevron-left']" />
+      </slot>
+    </button>
+
+    <slot></slot>
+    
+    <button
+      class="pagination-arrow"
+      @click="$emit('onPageChange', currentPage + 1)"
+      :disabled="isNextButtonDisabled"
+      aria-label="Next Page"
+    >
+      <slot name="next-icon">
+        <font-awesome-icon :icon="['fas', 'chevron-right']" />
+      </slot>
     </button>
   </div>
 </template>
