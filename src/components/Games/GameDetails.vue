@@ -8,9 +8,13 @@ const props = defineProps({
   isDetailsDialogOpen: { type: Boolean, required: true }
 });
 
+const emit = defineEmits(['onScrollToTop']);
 const selectedGame = ref(props.game);
 
-const handleGameSelect = newGame => selectedGame.value = newGame;
+const handleGameSelect = newGame => {
+  selectedGame.value = newGame;
+  emit('onScrollToTop');
+};
 </script>
 
 <template>
