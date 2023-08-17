@@ -15,7 +15,10 @@ const gamesOnCurrentPage = computed(() => {
   return availableGames.slice(startIndex, endIndex);
 });
 
-const handlePageChange = pageNumber => currentPage.value = pageNumber;
+const handlePageChange = pageNumber => {
+  window.scrollTo({ top: 0 });
+  currentPage.value = pageNumber;
+};
 </script>
 
 <template>

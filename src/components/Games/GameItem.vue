@@ -12,13 +12,23 @@ defineProps({
 const isVisible = ref(false);
 
 const handleShowGameDetails = (value) => isVisible.value = value;
+const handleScrollToTop = () => {
+  //TODO: implement better solution instead of using query selector
+  const dialogElement = document.querySelector('.modal-content');
+  if (dialogElement) {
+    dialogElement.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+};
 </script>
 
 <template>
   <div class="grid-item">
     <GameCard :game="game" @onShowGameDetails="handleShowGameDetails" />
-    <AppDialog :is-visible="isVisible" @onModalToggle="handleShowGameDetails">
-      <GameDetails :game="game" :isDetailsDialogOpen="isVisible"/>
+    <AppDialog :isVisible="isVisible" @onModalToggle="handleShowGameDetails">
+      <GameDetails 
+        :game="game"
+        :isDetailsDialogOpen="isVisible"
+        @onScrollToTop="handleScrollToTop"/>
     </AppDialog>
   </div>
 </template>

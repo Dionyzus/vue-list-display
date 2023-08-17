@@ -1,5 +1,5 @@
 <script setup>
-import { defineEmits, onBeforeUnmount } from 'vue';
+import { onBeforeUnmount } from 'vue';
 
 defineProps({
   isVisible: { type: Boolean, default: false }
@@ -19,7 +19,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="modal-container" v-show="isVisible" @click="handleClickOutside">
+  <div class="modal-container" v-if="isVisible" @click="handleClickOutside">
     <div class="modal-content" @click.stop>
       <div class="modal-header">
         <button @click="emit('onModalToggle', false)" class="modal-close">&times;</button>
