@@ -1,18 +1,45 @@
 <script setup>
 import { computed, ref } from 'vue';
 
+import { CATEGORIES } from '../../common/constants';
+import AppFilter from '../common/AppFilter.vue';
 import AppPagination from '../common/AppPagination.vue';
+import AppSearchBar from '../common/AppSearchBar.vue';
 import availableGames from './data.js';
 import GameItem from './GameItem.vue';
 
 const itemsPerPage = ref(12);
 const currentPage = ref(1);
+const searchQuery = ref('');
+const selectedCategory = ref('');
+
+const searchGames = newQuery => searchQuery.value = newQuery;
+const selectCategory = category => selectedCategory.value = category;
+
+const filteredGames = computed(() => {
+  let result = availableGames;
+
+  if (searchQuery.value) result = filterBySearchQuery(result);
+  if (selectedCategory.value) result = filterByCategory(result);
+
+  return result;
+});
+
+const filterBySearchQuery = (games) => {
+  return games.filter(game =>
+    game.title.toLowerCase().includes(searchQuery.value.toLowerCase())
+  );
+};
+
+const filterByCategory = (games) => {
+  return games.filter(game => game.categories.includes(selectedCategory.value));
+};
 
 const gamesOnCurrentPage = computed(() => {
   const startIndex = (currentPage.value - 1) * itemsPerPage.value;
   const endIndex = startIndex + itemsPerPage.value;
 
-  return availableGames.slice(startIndex, endIndex);
+  return filteredGames.value.slice(startIndex, endIndex);
 });
 
 const handlePageChange = pageNumber => {
@@ -23,8 +50,17 @@ const handlePageChange = pageNumber => {
 
 <template>
   <div class="game-grid">
+    <div class="filter-section">
+      <div class="filter-column">
+        <AppSearchBar @onSearch="searchGames" />
+      </div>
+      <div class="filter-column">
+        <AppFilter
+          @onFilterChange="selectCategory" label="Category" :availableFilters="CATEGORIES" />
+      </div>
+    </div>
     <AppPagination 
-      :itemCount="availableGames.length"
+      :itemCount="filteredGames.length"
       :itemsPerPage="itemsPerPage"
       :currentPage="currentPage"
       @onPageChange="handlePageChange">
@@ -36,6 +72,17 @@ const handlePageChange = pageNumber => {
 </template>
 
 <style scoped>
+.filter-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.filter-column {
+  flex: 1;
+  padding: 0.5rem;
+}
+
 .game-grid {
   padding: 1rem;
 }

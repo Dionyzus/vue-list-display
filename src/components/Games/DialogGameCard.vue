@@ -82,11 +82,7 @@ const isSelected = computed(() => props.game.id === props.selectedId);
     margin-bottom: 0;
     height: auto;
   }
-
-  .title {
-    font-size: 0.85rem;
-  }
-
+  
   .content {
     padding: 0.75rem;
   }
