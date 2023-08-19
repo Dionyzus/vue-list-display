@@ -1,6 +1,7 @@
 <script setup>
 import { computed, ref } from 'vue';
 
+import { moveItemToFirstPosition } from '../../utils/array';
 import { findGamesByProvider } from '../../utils/query';
 import DialogGameCard from './DialogGameCard.vue';
 import DialogPagination from './DialogPagination.vue';
@@ -20,13 +21,16 @@ const displayedGames = computed(() => {
   const startIndex = (currentPage.value - 1) * props.itemsPerPage;
   const endIndex = startIndex + props.itemsPerPage;
 
-  return filteredGames.value.slice(startIndex, endIndex);
+  const reorderedArray = moveItemToFirstPosition(filteredGames.value, selectedGame.value);
+
+  return reorderedArray.slice(startIndex, endIndex);
 });
 
 const handlePageChange = (page) => currentPage.value = page;
 
 const selectGame = (game) => {
   selectedGame.value = game;
+  currentPage.value = 1;
   emit("onGameSelect", game);
 };
 </script>

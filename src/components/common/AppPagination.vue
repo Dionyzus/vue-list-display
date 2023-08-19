@@ -28,6 +28,10 @@ const shouldDisplayTrailingEllipsis = computed(() => {
 
   return currentVisiblePages < pageCount.value - props.maxVisiblePages;
 });
+
+const shouldHideLastPageNumber = computed(() => {
+  return props.currentPage >= pageCount.value - 1 || pageCount.value <= props.maxVisiblePages;
+});
 </script>
 
 <template>
@@ -67,7 +71,7 @@ const shouldDisplayTrailingEllipsis = computed(() => {
       <span v-if="shouldDisplayTrailingEllipsis" class="ellipsis">...</span>
 
       <button
-        :class="['page-number-btn', { 'hidden': currentPage >= pageCount - 1}]"
+        :class="['page-number-btn', { 'hidden': shouldHideLastPageNumber }]"
         :key="pageCount"
         :disabled="pageCount === currentPage"
         @click="$emit('onPageChange', pageCount)"
@@ -77,7 +81,7 @@ const shouldDisplayTrailingEllipsis = computed(() => {
 
       <button
         @click="$emit('onPageChange', currentPage + 1)"
-        :disabled="currentPage === pageCount"
+        :disabled="currentPage === pageCount || pageCount === 0"
         class="page-number-btn"
         aria-label="Next Page"
       >
@@ -104,7 +108,7 @@ const shouldDisplayTrailingEllipsis = computed(() => {
   margin: 0.15rem;
   padding: 0.25rem 0.5rem;
   border: 1px solid #ccc;
-  border-radius: 4px;
+  border-radius: 0.25px;
   background-color: #f0f0f0;
   cursor: pointer;
   font-size: 1rem;
