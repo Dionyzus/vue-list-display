@@ -35,3 +35,4 @@ npm run lint
 ```
 =======
 # vue-list-display
+- AI Driven Development
