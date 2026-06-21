@@ -33,3 +33,7 @@ npm run build
 ```sh
 npm run lint
 ```
+
+## Status
+
+Actively maintained.
