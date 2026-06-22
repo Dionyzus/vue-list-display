@@ -1,5 +1,9 @@
 # vue-list-display
 
+## About
+
+vue-list-display is a small Vue 3 + Vite demo application that renders a filterable list of items, used as the reference repository for validating the Tower autonomous development pipeline.
+
 This template should help get you started developing with Vue 3 in Vite.
 
 ## Recommended IDE Setup
