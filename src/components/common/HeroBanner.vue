@@ -1,8 +1,23 @@
+<script setup>
+import { CATALOG_SECTION_ID } from '../../common/constants';
+
+const scrollToCatalog = () => {
+  const catalogElement = document.getElementById(CATALOG_SECTION_ID);
+  if (!catalogElement) return;
+
+  const behavior =
+    'scrollBehavior' in document.documentElement.style ? 'smooth' : 'auto';
+  catalogElement.scrollIntoView({ behavior });
+};
+</script>
+
 <template>
   <section class="hero" aria-label="Welcome">
     <h1 class="hero-headline">Online Casino</h1>
     <p class="hero-supporting">Browse our game catalog</p>
-    <button type="button" class="hero-cta">Browse games</button>
+    <button type="button" class="hero-cta" @click="scrollToCatalog">
+      Browse games
+    </button>
   </section>
 </template>
 
