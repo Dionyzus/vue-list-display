@@ -8,6 +8,8 @@ import slot from '@/assets/slot.jpg';
 export const IMAGE_SOURCES = [bars, cards, jackpot, poker, roulette, slot];
 export const RTP_VALUES = ['85%', '90%', '95%', '92%', '97%'];
 
+export const CATALOG_ANCHOR_ID = 'catalog-filter';
+
 export const PROVIDERS = {
   PLAYTECH: 'Playtech',
   BETSOFT: 'Betsoft',

@@ -1,8 +1,23 @@
+<script setup>
+const props = defineProps({
+  scrollTargetId: { type: String, default: '' }
+});
+
+const scrollToCatalog = () => {
+  if (!props.scrollTargetId) return;
+
+  const target = document.getElementById(props.scrollTargetId);
+  if (target && typeof target.scrollIntoView === 'function') {
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+};
+</script>
+
 <template>
   <section class="hero" aria-label="Welcome">
     <h1 class="hero-headline">Online Casino</h1>
     <p class="hero-supporting">Browse our game catalog</p>
-    <button type="button" class="hero-cta">Browse games</button>
+    <button type="button" class="hero-cta" @click="scrollToCatalog">Browse games</button>
   </section>
 </template>
 
