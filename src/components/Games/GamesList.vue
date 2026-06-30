@@ -1,7 +1,7 @@
 <script setup>
 import { computed, ref } from 'vue';
 
-import { CATALOG_SCROLL_ANCHOR_ID, CATEGORIES } from '../../common/constants';
+import { CATEGORIES } from '../../common/constants';
 import AppFilter from '../common/AppFilter.vue';
 import AppPagination from '../common/AppPagination.vue';
 import AppSearchBar from '../common/AppSearchBar.vue';
@@ -50,7 +50,7 @@ const handlePageChange = pageNumber => {
 
 <template>
   <div class="game-grid">
-    <div :id="CATALOG_SCROLL_ANCHOR_ID" class="filter-section">
+    <div class="filter-section">
       <div class="filter-column">
         <AppSearchBar @onSearch="searchGames" />
       </div>
