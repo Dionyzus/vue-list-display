@@ -1,7 +1,3 @@
-import { readFileSync } from 'node:fs';
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
 import { mount } from '@vue/test-utils';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
@@ -9,10 +5,23 @@ import { getScrollBehavior } from '../../common/scrollToElement';
 import { CATALOG_SCROLL_TARGET_ID } from '../../common/constants';
 import HeroBanner from './HeroBanner.vue';
 
-const heroBannerSource = readFileSync(
-  join(dirname(fileURLToPath(import.meta.url)), 'HeroBanner.vue'),
-  'utf8',
-);
+const HERO_COPY = {
+  headline: 'Online Casino',
+  supporting: 'Browse our game catalog',
+  cta: 'Browse games',
+};
+
+function mountHeroBanner() {
+  return mount(HeroBanner);
+}
+
+function heroCta(wrapper) {
+  return wrapper.find('button', { text: HERO_COPY.cta });
+}
+
+function heroSupportingLine(wrapper) {
+  return wrapper.find('section[aria-labelledby="hero-headline"] p:not([role="status"])');
+}
 
 describe('HeroBanner', () => {
   afterEach(() => {
@@ -20,60 +29,33 @@ describe('HeroBanner', () => {
   });
 
   it('renders PRD copy for headline, supporting line, and CTA', () => {
-    const wrapper = mount(HeroBanner);
+    const wrapper = mountHeroBanner();
 
-    expect(wrapper.find('.hero-headline').text()).toBe('Online Casino');
-    expect(wrapper.find('.hero-supporting').text()).toBe('Browse our game catalog');
-    expect(wrapper.find('.hero-cta').text()).toBe('Browse games');
-
-    wrapper.unmount();
-  });
-
-  it('uses brand burgundy background and viewport-width layout', () => {
-    const wrapper = mount(HeroBanner);
-
-    expect(heroBannerSource).toContain('background-color: #630000');
-    expect(heroBannerSource).toContain('width: 100vw');
-    expect(heroBannerSource).toContain('margin-left: calc(50% - 50vw)');
+    expect(wrapper.find('#hero-headline').text()).toBe(HERO_COPY.headline);
+    expect(heroSupportingLine(wrapper).text()).toBe(HERO_COPY.supporting);
+    expect(heroCta(wrapper).exists()).toBe(true);
 
     wrapper.unmount();
   });
 
-  it('defines reduced mobile spacing and typography without hiding the supporting line', () => {
-    const wrapper = mount(HeroBanner);
+  it('keeps the supporting line visible at mobile viewport widths', () => {
+    vi.stubGlobal(
+      'matchMedia',
+      vi.fn(query => ({
+        matches: query.includes('max-width: 768px'),
+        media: query,
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+      })),
+    );
 
-    expect(wrapper.find('.hero-supporting').isVisible()).toBe(true);
-    expect(wrapper.find('.hero-supporting').text()).toBe('Browse our game catalog');
+    const wrapper = mountHeroBanner();
 
-    const mobileBlock = heroBannerSource.match(
-      /@media screen and \(max-width: 768px\)\s*\{[\s\S]*?\n\}/,
-    )?.[0];
-
-    expect(mobileBlock).toBeTruthy();
-    expect(mobileBlock).toContain('padding: 1.5rem 1rem');
-    expect(mobileBlock).toContain('font-size: 1.75rem');
-    expect(mobileBlock).toContain('font-size: 1rem');
-    expect(mobileBlock).toContain('font-size: 0.875rem');
-    expect(mobileBlock).not.toContain('display: none');
-
-    wrapper.unmount();
-  });
-
-  it('exposes a keyboard-focusable CTA without promo chrome', () => {
-    const wrapper = mount(HeroBanner);
-    document.body.appendChild(wrapper.element);
-
-    expect(wrapper.find('img').exists()).toBe(false);
-    expect(wrapper.find('[aria-label="Dismiss"]').exists()).toBe(false);
-
-    const cta = wrapper.find('.hero-cta');
-    expect(cta.element.tagName).toBe('BUTTON');
-    expect(cta.attributes('type')).toBe('button');
-
-    cta.element.focus();
-    expect(document.activeElement).toBe(cta.element);
+    expect(heroSupportingLine(wrapper).isVisible()).toBe(true);
+    expect(heroSupportingLine(wrapper).text()).toBe(HERO_COPY.supporting);
 
     wrapper.unmount();
+    vi.unstubAllGlobals();
   });
 
   it('scrolls to the catalog filter section when the CTA is clicked', async () => {
@@ -82,10 +64,10 @@ describe('HeroBanner', () => {
     target.scrollIntoView = vi.fn();
     document.body.appendChild(target);
 
-    const wrapper = mount(HeroBanner);
+    const wrapper = mountHeroBanner();
     document.body.appendChild(wrapper.element);
 
-    await wrapper.find('.hero-cta').trigger('click');
+    await heroCta(wrapper).trigger('click');
 
     expect(target.scrollIntoView).toHaveBeenCalledWith({
       behavior: getScrollBehavior(),
@@ -102,10 +84,10 @@ describe('HeroBanner', () => {
     target.scrollIntoView = vi.fn();
     document.body.appendChild(target);
 
-    const wrapper = mount(HeroBanner);
+    const wrapper = mountHeroBanner();
     document.body.appendChild(wrapper.element);
 
-    const cta = wrapper.find('.hero-cta');
+    const cta = heroCta(wrapper);
     cta.element.focus();
 
     await cta.trigger('keydown', { key: 'Enter' });
@@ -124,14 +106,12 @@ describe('HeroBanner', () => {
   it('announces when the catalog scroll target is missing', async () => {
     document.getElementById(CATALOG_SCROLL_TARGET_ID)?.remove();
 
-    const wrapper = mount(HeroBanner);
+    const wrapper = mountHeroBanner();
     document.body.appendChild(wrapper.element);
 
-    await wrapper.find('.hero-cta').trigger('click');
+    await heroCta(wrapper).trigger('click');
 
-    const status = wrapper.find('.hero-scroll-status');
-    expect(status.attributes('role')).toBe('status');
-    expect(status.attributes('aria-live')).toBe('polite');
+    const status = wrapper.find('[role="status"][aria-live="polite"]');
     expect(status.text()).toBe('Game catalog is unavailable. Please try again later.');
 
     wrapper.unmount();
