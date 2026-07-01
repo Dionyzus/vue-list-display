@@ -8,13 +8,29 @@ function scrollToCatalog() {
   const behavior = 'scrollBehavior' in document.documentElement.style ? 'smooth' : 'auto';
   target.scrollIntoView({ behavior, block: 'start' });
 }
+
+function handleCtaActivate(event) {
+  if (event.type === 'keydown') {
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+    event.preventDefault();
+  }
+
+  scrollToCatalog();
+}
 </script>
 
 <template>
   <section class="hero-banner" aria-label="Welcome">
     <h1 class="hero-banner__headline">Online Casino</h1>
     <p class="hero-banner__supporting">Browse our game catalog</p>
-    <button type="button" class="hero-banner__cta" @click="scrollToCatalog">Browse games</button>
+    <button
+      type="button"
+      class="hero-banner__cta"
+      @click="handleCtaActivate"
+      @keydown="handleCtaActivate"
+    >
+      Browse games
+    </button>
   </section>
 </template>
 

@@ -44,7 +44,7 @@ describe('App', () => {
     expect(wrapper.find('.grid-layout').element.children.length).toBe(0);
   });
 
-  it('scrolls to the catalog filter section when Browse games is activated', () => {
+  it('scrolls to the catalog filter section when Browse games is activated by click', () => {
     const scrollIntoView = vi.fn();
     const wrapper = mount(App, {
       attachTo: document.body,
@@ -65,4 +65,31 @@ describe('App', () => {
       block: 'start',
     });
   });
+
+  it.each(['Enter', ' '])(
+    'scrolls to the catalog filter section when Browse games is activated with %s',
+    async key => {
+      const scrollIntoView = vi.fn();
+      const wrapper = mount(App, {
+        attachTo: document.body,
+        global: {
+          stubs: {
+            'font-awesome-icon': true,
+          },
+        },
+      });
+
+      const filterSection = wrapper.find('.filter-section').element;
+      filterSection.scrollIntoView = scrollIntoView;
+
+      const cta = wrapper.find('.hero-banner__cta');
+      cta.element.focus();
+      await cta.trigger('keydown', { key });
+
+      expect(scrollIntoView).toHaveBeenCalledWith({
+        behavior: 'smooth',
+        block: 'start',
+      });
+    },
+  );
 });

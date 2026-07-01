@@ -7,6 +7,7 @@ import heroBannerSource from './HeroBanner.vue?raw';
 
 describe('HeroBanner', () => {
   afterEach(() => {
+    vi.restoreAllMocks();
     document.body.innerHTML = '';
   });
 
@@ -76,23 +77,51 @@ describe('HeroBanner', () => {
     });
   });
 
-  it('is keyboard-focusable so Enter and Space activate the scroll handler', () => {
+  it.each(['Enter', ' '])('scrolls to the catalog filter anchor when %s is pressed', async key => {
     const target = document.createElement('div');
     target.id = CATALOG_FILTER_ANCHOR_ID;
     target.scrollIntoView = vi.fn();
     document.body.append(target);
 
     const wrapper = mount(HeroBanner, { attachTo: document.body });
-    const cta = wrapper.find('.hero-banner__cta').element;
+    const cta = wrapper.find('.hero-banner__cta');
 
-    cta.focus();
-    expect(document.activeElement).toBe(cta);
+    cta.element.focus();
+    expect(document.activeElement).toBe(cta.element);
 
-    cta.click();
+    await cta.trigger('keydown', { key });
 
     expect(target.scrollIntoView).toHaveBeenCalledWith({
       behavior: 'smooth',
       block: 'start',
     });
+  });
+
+  it('uses auto scroll behavior when smooth scrolling is unsupported', () => {
+    const target = document.createElement('div');
+    target.id = CATALOG_FILTER_ANCHOR_ID;
+    target.scrollIntoView = vi.fn();
+    document.body.append(target);
+
+    vi.spyOn(document, 'documentElement', 'get').mockReturnValue({
+      style: {},
+    });
+
+    const wrapper = mount(HeroBanner, { attachTo: document.body });
+    wrapper.find('.hero-banner__cta').trigger('click');
+
+    expect(target.scrollIntoView).toHaveBeenCalledWith({
+      behavior: 'auto',
+      block: 'start',
+    });
+  });
+
+  it('does nothing when the catalog filter anchor is missing', () => {
+    const scrollIntoView = vi.fn();
+    const wrapper = mount(HeroBanner, { attachTo: document.body });
+
+    expect(document.getElementById(CATALOG_FILTER_ANCHOR_ID)).toBeNull();
+    expect(() => wrapper.find('.hero-banner__cta').trigger('click')).not.toThrow();
+    expect(scrollIntoView).not.toHaveBeenCalled();
   });
 });

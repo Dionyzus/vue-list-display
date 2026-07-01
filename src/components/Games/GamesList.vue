@@ -76,6 +76,7 @@ const handlePageChange = pageNumber => {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  scroll-margin-top: 4.5rem;
 }
 
 .filter-column {
@@ -91,6 +92,12 @@ const handlePageChange = pageNumber => {
   display: grid;
   grid-template-columns: repeat(1, 1fr);
   grid-gap: 1rem;
+}
+
+@media screen and (max-width: 768px) {
+  .filter-section {
+    scroll-margin-top: 3.5rem;
+  }
 }
 
 @media screen and (min-width: 768px) {
