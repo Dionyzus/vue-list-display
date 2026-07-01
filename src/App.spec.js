@@ -1,9 +1,10 @@
 import { mount } from '@vue/test-utils';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import App from './App.vue';
 import HeroBanner from './components/common/HeroBanner.vue';
 import GamesList from './components/Games/GamesList.vue';
+import { CATALOG_SCROLL_TARGET_ID } from './common/constants';
 
 describe('App', () => {
   it('renders HeroBanner above the catalog list in the content slot', () => {
@@ -50,5 +51,37 @@ describe('App', () => {
     expect(wrapper.findAll('.grid-item').length).toBe(0);
 
     wrapper.unmount();
+  });
+
+  it('scrolls from the hero CTA to the catalog filter section', async () => {
+    const scrollIntoView = vi.fn();
+    const originalGetElementById = document.getElementById.bind(document);
+
+    vi.spyOn(document, 'getElementById').mockImplementation((id) => {
+      if (id === CATALOG_SCROLL_TARGET_ID) {
+        return { scrollIntoView };
+      }
+
+      return originalGetElementById(id);
+    });
+
+    const wrapper = mount(App, {
+      global: {
+        stubs: {
+          AppNavigation: true,
+        },
+      },
+    });
+
+    await wrapper.find('.hero-cta').trigger('click');
+
+    expect(scrollIntoView).toHaveBeenCalledWith({
+      behavior: 'smooth',
+      block: 'start',
+    });
+    expect(wrapper.find(`#${CATALOG_SCROLL_TARGET_ID}`).exists()).toBe(true);
+
+    wrapper.unmount();
+    vi.restoreAllMocks();
   });
 });

@@ -3,8 +3,9 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { mount } from '@vue/test-utils';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
+import { CATALOG_SCROLL_TARGET_ID } from '../../common/constants';
 import HeroBanner from './HeroBanner.vue';
 
 const heroBannerSource = readFileSync(
@@ -68,5 +69,25 @@ describe('HeroBanner', () => {
     expect(document.activeElement).toBe(cta.element);
 
     wrapper.unmount();
+  });
+
+  it('scrolls to the catalog filter section when the CTA is activated', async () => {
+    const target = document.createElement('div');
+    target.id = CATALOG_SCROLL_TARGET_ID;
+    target.scrollIntoView = vi.fn();
+    document.body.appendChild(target);
+
+    const wrapper = mount(HeroBanner);
+    document.body.appendChild(wrapper.element);
+
+    await wrapper.find('.hero-cta').trigger('click');
+
+    expect(target.scrollIntoView).toHaveBeenCalledWith({
+      behavior: 'smooth',
+      block: 'start',
+    });
+
+    wrapper.unmount();
+    document.body.removeChild(target);
   });
 });
