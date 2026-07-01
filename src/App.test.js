@@ -43,4 +43,26 @@ describe('App', () => {
     expect(wrapper.find('.hero-banner__headline').text()).toBe('Online Casino');
     expect(wrapper.find('.grid-layout').element.children.length).toBe(0);
   });
+
+  it('scrolls to the catalog filter section when Browse games is activated', () => {
+    const scrollIntoView = vi.fn();
+    const wrapper = mount(App, {
+      attachTo: document.body,
+      global: {
+        stubs: {
+          'font-awesome-icon': true,
+        },
+      },
+    });
+
+    const filterSection = wrapper.find('.filter-section').element;
+    filterSection.scrollIntoView = scrollIntoView;
+
+    wrapper.find('.hero-banner__cta').trigger('click');
+
+    expect(scrollIntoView).toHaveBeenCalledWith({
+      behavior: 'smooth',
+      block: 'start',
+    });
+  });
 });

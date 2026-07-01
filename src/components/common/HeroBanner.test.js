@@ -1,6 +1,7 @@
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { mount } from '@vue/test-utils';
 
+import { CATALOG_FILTER_ANCHOR_ID } from '../../common/constants';
 import HeroBanner from './HeroBanner.vue';
 import heroBannerSource from './HeroBanner.vue?raw';
 
@@ -57,5 +58,41 @@ describe('HeroBanner', () => {
     expect(mobileBlock).toContain('font-size: 1rem');
     expect(mobileBlock).toContain('font-size: 0.875rem');
     expect(mobileBlock).toContain('padding: 0.5rem 1rem');
+  });
+
+  it('scrolls to the catalog filter anchor when the CTA is clicked', () => {
+    const target = document.createElement('div');
+    target.id = CATALOG_FILTER_ANCHOR_ID;
+    target.scrollIntoView = vi.fn();
+    document.body.append(target);
+
+    const wrapper = mount(HeroBanner, { attachTo: document.body });
+
+    wrapper.find('.hero-banner__cta').trigger('click');
+
+    expect(target.scrollIntoView).toHaveBeenCalledWith({
+      behavior: 'smooth',
+      block: 'start',
+    });
+  });
+
+  it('is keyboard-focusable so Enter and Space activate the scroll handler', () => {
+    const target = document.createElement('div');
+    target.id = CATALOG_FILTER_ANCHOR_ID;
+    target.scrollIntoView = vi.fn();
+    document.body.append(target);
+
+    const wrapper = mount(HeroBanner, { attachTo: document.body });
+    const cta = wrapper.find('.hero-banner__cta').element;
+
+    cta.focus();
+    expect(document.activeElement).toBe(cta);
+
+    cta.click();
+
+    expect(target.scrollIntoView).toHaveBeenCalledWith({
+      behavior: 'smooth',
+      block: 'start',
+    });
   });
 });
