@@ -1,3 +1,14 @@
+<script setup>
+import { CATALOG_FILTER_SECTION_ID } from '@/common/constants';
+
+const scrollToCatalog = () => {
+  document.getElementById(CATALOG_FILTER_SECTION_ID)?.scrollIntoView({
+    behavior: 'smooth',
+    block: 'start',
+  });
+};
+</script>
+
 <template>
   <section
     class="hero-banner"
@@ -6,7 +17,14 @@
   >
     <h1 class="hero-headline" data-testid="hero-headline">Online Casino</h1>
     <p class="hero-supporting" data-testid="hero-supporting">Browse our game catalog</p>
-    <button class="hero-cta" type="button" data-testid="hero-cta">Browse games</button>
+    <button
+      class="hero-cta"
+      type="button"
+      data-testid="hero-cta"
+      @click="scrollToCatalog"
+    >
+      Browse games
+    </button>
   </section>
 </template>
 

@@ -23,6 +23,8 @@ export const PROVIDERS = {
   GENESIS_GAMING_SOLUTIONS: 'Genesis Gaming Solutions'
 };
 
+export const CATALOG_FILTER_SECTION_ID = 'catalog-filter-section';
+
 export const CATEGORIES = {
   TABLE_GAMES: 'Table Games',
   BLACKJACK: 'Blackjack',

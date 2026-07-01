@@ -1,5 +1,7 @@
 import { mount } from '@vue/test-utils';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+
+import { CATALOG_FILTER_SECTION_ID } from '@/common/constants';
 
 import HeroBanner from './HeroBanner.vue';
 
@@ -27,5 +29,27 @@ describe('HeroBanner', () => {
 
     expect(cta.element.tagName).toBe('BUTTON');
     expect(cta.attributes('type')).toBe('button');
+  });
+
+  it('scrolls to the catalog filter section when the CTA is activated', async () => {
+    const scrollIntoView = vi.fn();
+    const target = document.createElement('div');
+    target.id = CATALOG_FILTER_SECTION_ID;
+    target.scrollIntoView = scrollIntoView;
+    document.body.appendChild(target);
+
+    const wrapper = mount(HeroBanner);
+    await wrapper.find('[data-testid="hero-cta"]').trigger('click');
+
+    expect(scrollIntoView).toHaveBeenCalledWith({
+      behavior: 'smooth',
+      block: 'start',
+    });
+
+    document.body.removeChild(target);
+  });
+
+  afterEach(() => {
+    document.getElementById(CATALOG_FILTER_SECTION_ID)?.remove();
   });
 });
