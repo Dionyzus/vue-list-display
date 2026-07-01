@@ -1,7 +1,16 @@
+import { readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
 import { mount } from '@vue/test-utils';
 import { describe, expect, it } from 'vitest';
 
 import HeroBanner from './HeroBanner.vue';
+
+const heroBannerSource = readFileSync(
+  join(dirname(fileURLToPath(import.meta.url)), 'HeroBanner.vue'),
+  'utf8',
+);
 
 describe('HeroBanner', () => {
   it('renders PRD copy for headline, supporting line, and CTA', () => {
@@ -10,10 +19,43 @@ describe('HeroBanner', () => {
     expect(wrapper.find('.hero-headline').text()).toBe('Online Casino');
     expect(wrapper.find('.hero-supporting').text()).toBe('Browse our game catalog');
     expect(wrapper.find('.hero-cta').text()).toBe('Browse games');
+
+    wrapper.unmount();
   });
 
-  it('exposes a focusable CTA without promo chrome', () => {
+  it('uses brand burgundy background and viewport-width layout', () => {
     const wrapper = mount(HeroBanner);
+
+    expect(heroBannerSource).toContain('background-color: #630000');
+    expect(heroBannerSource).toContain('width: 100vw');
+    expect(heroBannerSource).toContain('margin-left: calc(50% - 50vw)');
+
+    wrapper.unmount();
+  });
+
+  it('defines reduced mobile spacing and typography without hiding the supporting line', () => {
+    const wrapper = mount(HeroBanner);
+
+    expect(wrapper.find('.hero-supporting').isVisible()).toBe(true);
+    expect(wrapper.find('.hero-supporting').text()).toBe('Browse our game catalog');
+
+    const mobileBlock = heroBannerSource.match(
+      /@media screen and \(max-width: 768px\)\s*\{[\s\S]*?\n\}/,
+    )?.[0];
+
+    expect(mobileBlock).toBeTruthy();
+    expect(mobileBlock).toContain('padding: 1.5rem 1rem');
+    expect(mobileBlock).toContain('font-size: 1.75rem');
+    expect(mobileBlock).toContain('font-size: 1rem');
+    expect(mobileBlock).toContain('font-size: 0.875rem');
+    expect(mobileBlock).not.toContain('display: none');
+
+    wrapper.unmount();
+  });
+
+  it('exposes a keyboard-focusable CTA without promo chrome', () => {
+    const wrapper = mount(HeroBanner);
+    document.body.appendChild(wrapper.element);
 
     expect(wrapper.find('img').exists()).toBe(false);
     expect(wrapper.find('[aria-label="Dismiss"]').exists()).toBe(false);
@@ -21,5 +63,10 @@ describe('HeroBanner', () => {
     const cta = wrapper.find('.hero-cta');
     expect(cta.element.tagName).toBe('BUTTON');
     expect(cta.attributes('type')).toBe('button');
+
+    cta.element.focus();
+    expect(document.activeElement).toBe(cta.element);
+
+    wrapper.unmount();
   });
 });
