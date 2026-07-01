@@ -1,9 +1,18 @@
+import { readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
 import { mount } from '@vue/test-utils';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { getScrollBehavior } from '../../common/scrollToElement';
 import { CATALOG_SCROLL_TARGET_ID } from '../../common/constants';
 import HeroBanner from './HeroBanner.vue';
+
+const heroBannerStyles = readFileSync(
+  join(dirname(fileURLToPath(import.meta.url)), 'HeroBanner.vue'),
+  'utf8',
+);
 
 const HERO_COPY = {
   headline: 'Online Casino',
@@ -16,7 +25,7 @@ function mountHeroBanner() {
 }
 
 function heroCta(wrapper) {
-  return wrapper.find('button', { text: HERO_COPY.cta });
+  return wrapper.get('section[aria-labelledby="hero-headline"] button[type="button"]');
 }
 
 function heroSupportingLine(wrapper) {
@@ -33,29 +42,28 @@ describe('HeroBanner', () => {
 
     expect(wrapper.find('#hero-headline').text()).toBe(HERO_COPY.headline);
     expect(heroSupportingLine(wrapper).text()).toBe(HERO_COPY.supporting);
-    expect(heroCta(wrapper).exists()).toBe(true);
+    expect(heroCta(wrapper).text()).toBe(HERO_COPY.cta);
 
     wrapper.unmount();
   });
 
-  it('keeps the supporting line visible at mobile viewport widths', () => {
-    vi.stubGlobal(
-      'matchMedia',
-      vi.fn(query => ({
-        matches: query.includes('max-width: 768px'),
-        media: query,
-        addEventListener: vi.fn(),
-        removeEventListener: vi.fn(),
-      })),
-    );
-
+  it('applies reduced spacing and typography at the 768px breakpoint', () => {
     const wrapper = mountHeroBanner();
 
+    const mobileBlock = heroBannerStyles.match(
+      /@media screen and \(max-width: 768px\)\s*\{[\s\S]*?\n\}/,
+    )?.[0];
+
+    expect(mobileBlock).toBeTruthy();
+    expect(mobileBlock).toContain('padding: 1.5rem 1rem');
+    expect(mobileBlock).toContain('font-size: 1.75rem');
+    expect(mobileBlock).toContain('font-size: 1rem');
+    expect(mobileBlock).toContain('font-size: 0.875rem');
+    expect(mobileBlock).not.toContain('display: none');
     expect(heroSupportingLine(wrapper).isVisible()).toBe(true);
     expect(heroSupportingLine(wrapper).text()).toBe(HERO_COPY.supporting);
 
     wrapper.unmount();
-    vi.unstubAllGlobals();
   });
 
   it('scrolls to the catalog filter section when the CTA is clicked', async () => {

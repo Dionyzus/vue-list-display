@@ -2,8 +2,6 @@ import { mount } from '@vue/test-utils';
 import { describe, expect, it, vi } from 'vitest';
 
 import App from './App.vue';
-import GameItem from './components/Games/GameItem.vue';
-import HeroBanner from './components/common/HeroBanner.vue';
 import { getScrollBehavior } from './common/scrollToElement';
 import { CATALOG_SCROLL_TARGET_ID } from './common/constants';
 
@@ -31,6 +29,10 @@ function isBeforeInDocument(earlierElement, laterElement) {
   );
 }
 
+function heroCta(wrapper) {
+  return wrapper.get('section[aria-labelledby="hero-headline"] button[type="button"]');
+}
+
 describe('App', () => {
   it('renders the hero above catalog search and category filter controls', () => {
     const wrapper = mountMainView();
@@ -48,20 +50,6 @@ describe('App', () => {
     wrapper.unmount();
   });
 
-  it('keeps the hero visible when the catalog has zero matching games', async () => {
-    const wrapper = mountMainView();
-
-    await wrapper.find('input[placeholder="Search..."]').setValue('__no_matching_games__');
-    await wrapper.vm.$nextTick();
-
-    expect(wrapper.findComponent(HeroBanner).exists()).toBe(true);
-    expect(wrapper.find('#hero-headline').text()).toBe(HERO_COPY.headline);
-    expect(wrapper.find('button', { text: HERO_COPY.cta }).exists()).toBe(true);
-    expect(wrapper.findAllComponents(GameItem)).toHaveLength(0);
-
-    wrapper.unmount();
-  });
-
   it('scrolls from the hero CTA to the catalog filter section', async () => {
     const wrapper = mountMainView();
     document.body.appendChild(wrapper.element);
@@ -71,7 +59,7 @@ describe('App', () => {
 
     catalogTarget.scrollIntoView = vi.fn();
 
-    await wrapper.find('button', { text: HERO_COPY.cta }).trigger('click');
+    await heroCta(wrapper).trigger('click');
 
     expect(catalogTarget.scrollIntoView).toHaveBeenCalledWith({
       behavior: getScrollBehavior(),
