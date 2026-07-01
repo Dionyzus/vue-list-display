@@ -39,3 +39,9 @@ npm run build
 ```sh
 npm run lint
 ```
+
+### Run unit tests with [Vitest](https://vitest.dev/)
+
+```sh
+npm test
+```
