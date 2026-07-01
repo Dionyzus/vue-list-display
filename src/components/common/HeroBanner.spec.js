@@ -4,6 +4,10 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { CATALOG_SCROLL_TARGET_ID } from '../../common/constants';
 import HeroBanner from './HeroBanner.vue';
 
+const PRD_HEADLINE = 'Online Casino';
+const PRD_SUPPORTING = 'Browse our game catalog';
+const PRD_CTA = 'Browse games';
+
 describe('HeroBanner', () => {
   afterEach(() => {
     vi.restoreAllMocks();
@@ -11,13 +15,13 @@ describe('HeroBanner', () => {
 
   it('renders PRD copy and a focusable CTA button', () => {
     const wrapper = mount(HeroBanner);
+    const hero = wrapper.get('[aria-label="Welcome"]');
 
-    expect(wrapper.find('.hero-headline').text()).toBe('Online Casino');
-    expect(wrapper.find('.hero-supporting').text()).toBe('Browse our game catalog');
+    expect(hero.get('h1').text()).toBe(PRD_HEADLINE);
+    expect(hero.get('p').text()).toBe(PRD_SUPPORTING);
 
-    const cta = wrapper.find('.hero-cta');
-    expect(cta.text()).toBe('Browse games');
-    expect(cta.element.tagName).toBe('BUTTON');
+    const cta = hero.get('button');
+    expect(cta.text()).toBe(PRD_CTA);
     expect(cta.attributes('type')).toBe('button');
   });
 
@@ -28,7 +32,7 @@ describe('HeroBanner', () => {
     vi.spyOn(document, 'getElementById').mockReturnValue(catalogTarget);
 
     const wrapper = mount(HeroBanner);
-    wrapper.find('.hero-cta').trigger('click');
+    wrapper.get('[aria-label="Welcome"]').get('button').trigger('click');
 
     expect(document.getElementById).toHaveBeenCalledWith(CATALOG_SCROLL_TARGET_ID);
     expect(scrollIntoView).toHaveBeenCalledWith({ behavior: 'smooth', block: 'start' });
@@ -36,11 +40,24 @@ describe('HeroBanner', () => {
 
   it('is a static hero strip without images, dismiss controls, or carousel content', () => {
     const wrapper = mount(HeroBanner);
-    const hero = wrapper.find('.hero');
+    const hero = wrapper.get('[aria-label="Welcome"]');
 
-    expect(hero.exists()).toBe(true);
     expect(hero.find('img').exists()).toBe(false);
     expect(hero.find('[aria-label="Dismiss"]').exists()).toBe(false);
     expect(hero.findAll('button')).toHaveLength(1);
+  });
+
+  it('keeps PRD copy visible at the 768px viewport', () => {
+    Object.defineProperty(window, 'innerWidth', {
+      configurable: true,
+      value: 768,
+    });
+
+    const wrapper = mount(HeroBanner);
+    const hero = wrapper.get('[aria-label="Welcome"]');
+
+    expect(hero.get('h1').text()).toBe(PRD_HEADLINE);
+    expect(hero.get('p').text()).toBe(PRD_SUPPORTING);
+    expect(hero.get('button').text()).toBe(PRD_CTA);
   });
 });
