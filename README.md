@@ -39,3 +39,9 @@ npm run build
 ```sh
 npm run lint
 ```
+
+### Run Unit Tests
+
+```sh
+npm test
+```
