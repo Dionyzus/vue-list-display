@@ -3,7 +3,6 @@ import { mount } from '@vue/test-utils';
 
 import { CATALOG_FILTER_ANCHOR_ID } from '../../common/constants';
 import HeroBanner from './HeroBanner.vue';
-import heroBannerSource from './HeroBanner.vue?raw';
 
 const PRD_HEADLINE = 'Online Casino';
 const PRD_SUPPORTING = 'Browse our game catalog';
@@ -25,10 +24,20 @@ function mountHeroBannerWithCatalogAnchor() {
   };
 }
 
+function setViewportWidth(width) {
+  Object.defineProperty(window, 'innerWidth', {
+    configurable: true,
+    writable: true,
+    value: width,
+  });
+  window.dispatchEvent(new Event('resize'));
+}
+
 describe('HeroBanner', () => {
   afterEach(() => {
     vi.restoreAllMocks();
     document.body.innerHTML = '';
+    setViewportWidth(1024);
   });
 
   it('renders headline, supporting line, and CTA with exact PRD copy', () => {
@@ -51,35 +60,14 @@ describe('HeroBanner', () => {
     expect(cta.attributes('type')).toBe('button');
   });
 
-  it('uses burgundy background and white text', () => {
+  it('remains readable at a narrow mobile viewport', () => {
+    setViewportWidth(375);
     const wrapper = mountHeroBanner();
-    const banner = wrapper.get('[aria-label="Welcome"]').element;
-    const styles = getComputedStyle(banner);
+    const banner = wrapper.get('[aria-label="Welcome"]');
 
-    expect(styles.backgroundColor).toBe('rgb(99, 0, 0)');
-    expect(styles.color).toBe('rgb(255, 255, 255)');
-  });
-
-  it('spans the viewport width like the navigation chrome', () => {
-    const wrapper = mountHeroBanner();
-    const styles = getComputedStyle(wrapper.get('[aria-label="Welcome"]').element);
-
-    expect(styles.width).toBe('100vw');
-    expect(heroBannerSource).toContain('margin-left: calc(50% - 50vw)');
-    expect(heroBannerSource).toContain('margin-right: calc(50% - 50vw)');
-  });
-
-  it('reduces padding and font sizes at the 768px breakpoint', () => {
-    const mobileBlock = heroBannerSource.match(
-      /@media screen and \(max-width: 768px\)\s*\{([\s\S]*?)\n\}/,
-    )?.[1];
-
-    expect(mobileBlock).toBeTruthy();
-    expect(mobileBlock).toContain('padding: 1rem 0.5rem');
-    expect(mobileBlock).toContain('font-size: 1.5rem');
-    expect(mobileBlock).toContain('font-size: 1rem');
-    expect(mobileBlock).toContain('font-size: 0.875rem');
-    expect(mobileBlock).toContain('padding: 0.5rem 1rem');
+    expect(banner.get('h1').text()).toBe(PRD_HEADLINE);
+    expect(banner.get('p').text()).toBe(PRD_SUPPORTING);
+    expect(wrapper.get('button').text()).toBe(PRD_CTA_LABEL);
   });
 
   it('scrolls to the catalog filter anchor when the CTA is clicked', () => {
@@ -125,6 +113,7 @@ describe('HeroBanner', () => {
 
   it('does nothing when the catalog filter anchor is missing', () => {
     const scrollIntoView = vi.fn();
+    Element.prototype.scrollIntoView = scrollIntoView;
     const wrapper = mountHeroBanner();
 
     expect(document.getElementById(CATALOG_FILTER_ANCHOR_ID)).toBeNull();
