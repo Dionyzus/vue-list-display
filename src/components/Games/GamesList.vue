@@ -73,6 +73,7 @@ const handlePageChange = pageNumber => {
 
 <style scoped>
 .filter-section {
+  scroll-margin-top: var(--app-header-offset);
   display: flex;
   justify-content: space-between;
   align-items: center;

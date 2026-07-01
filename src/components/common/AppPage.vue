@@ -11,6 +11,7 @@
   
 <style scoped>
 .page {
+  --app-header-offset: 4rem;
   font-family: "Open Sans", sans-serif;
 }
 
@@ -34,6 +35,10 @@
 }
 
 @media screen and (max-width: 768px) {
+  .page {
+    --app-header-offset: 3rem;
+  }
+
   .header {
     padding: 0.5rem;
   }

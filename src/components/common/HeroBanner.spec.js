@@ -3,8 +3,9 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { mount } from '@vue/test-utils';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
+import { getScrollBehavior } from '../../common/scrollToElement';
 import { CATALOG_SCROLL_TARGET_ID } from '../../common/constants';
 import HeroBanner from './HeroBanner.vue';
 
@@ -14,6 +15,10 @@ const heroBannerSource = readFileSync(
 );
 
 describe('HeroBanner', () => {
+  afterEach(() => {
+    document.body.innerHTML = '';
+  });
+
   it('renders PRD copy for headline, supporting line, and CTA', () => {
     const wrapper = mount(HeroBanner);
 
@@ -71,7 +76,7 @@ describe('HeroBanner', () => {
     wrapper.unmount();
   });
 
-  it('scrolls to the catalog filter section when the CTA is activated', async () => {
+  it('scrolls to the catalog filter section when the CTA is clicked', async () => {
     const target = document.createElement('div');
     target.id = CATALOG_SCROLL_TARGET_ID;
     target.scrollIntoView = vi.fn();
@@ -83,11 +88,52 @@ describe('HeroBanner', () => {
     await wrapper.find('.hero-cta').trigger('click');
 
     expect(target.scrollIntoView).toHaveBeenCalledWith({
-      behavior: 'smooth',
+      behavior: getScrollBehavior(),
       block: 'start',
     });
 
     wrapper.unmount();
     document.body.removeChild(target);
+  });
+
+  it('scrolls to the catalog filter section when Enter or Space activates the focused CTA', async () => {
+    const target = document.createElement('div');
+    target.id = CATALOG_SCROLL_TARGET_ID;
+    target.scrollIntoView = vi.fn();
+    document.body.appendChild(target);
+
+    const wrapper = mount(HeroBanner);
+    document.body.appendChild(wrapper.element);
+
+    const cta = wrapper.find('.hero-cta');
+    cta.element.focus();
+
+    await cta.trigger('keydown', { key: 'Enter' });
+    expect(target.scrollIntoView).toHaveBeenCalledTimes(1);
+
+    target.scrollIntoView.mockClear();
+
+    await cta.trigger('keydown', { key: ' ' });
+    await cta.trigger('keyup', { key: ' ' });
+    expect(target.scrollIntoView).toHaveBeenCalledTimes(1);
+
+    wrapper.unmount();
+    document.body.removeChild(target);
+  });
+
+  it('announces when the catalog scroll target is missing', async () => {
+    document.getElementById(CATALOG_SCROLL_TARGET_ID)?.remove();
+
+    const wrapper = mount(HeroBanner);
+    document.body.appendChild(wrapper.element);
+
+    await wrapper.find('.hero-cta').trigger('click');
+
+    const status = wrapper.find('.hero-scroll-status');
+    expect(status.attributes('role')).toBe('status');
+    expect(status.attributes('aria-live')).toBe('polite');
+    expect(status.text()).toBe('Game catalog is unavailable. Please try again later.');
+
+    wrapper.unmount();
   });
 });

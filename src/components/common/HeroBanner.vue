@@ -1,14 +1,18 @@
 <script setup>
+import { ref } from 'vue';
+
 import { CATALOG_SCROLL_TARGET_ID } from '../../common/constants';
+import { scrollToElementById } from '../../common/scrollToElement';
+
+const scrollStatus = ref('');
 
 const scrollToCatalog = () => {
-  const target = document.getElementById(CATALOG_SCROLL_TARGET_ID);
-  if (!target) return;
+  if (scrollToElementById(CATALOG_SCROLL_TARGET_ID)) {
+    scrollStatus.value = '';
+    return;
+  }
 
-  target.scrollIntoView({
-    behavior: 'scrollBehavior' in document.documentElement.style ? 'smooth' : 'auto',
-    block: 'start',
-  });
+  scrollStatus.value = 'Game catalog is unavailable. Please try again later.';
 };
 </script>
 
@@ -16,7 +20,16 @@ const scrollToCatalog = () => {
   <section class="hero" aria-labelledby="hero-headline">
     <h1 id="hero-headline" class="hero-headline">Online Casino</h1>
     <p class="hero-supporting">Browse our game catalog</p>
-    <button type="button" class="hero-cta" @click="scrollToCatalog">Browse games</button>
+    <button
+      type="button"
+      class="hero-cta"
+      @click="scrollToCatalog"
+      @keydown.enter.prevent="scrollToCatalog"
+      @keyup.space.prevent="scrollToCatalog"
+    >
+      Browse games
+    </button>
+    <p role="status" aria-live="polite" class="hero-scroll-status">{{ scrollStatus }}</p>
   </section>
 </template>
 
@@ -62,6 +75,18 @@ const scrollToCatalog = () => {
 .hero-cta:focus-visible {
   outline: 2px solid white;
   outline-offset: 2px;
+}
+
+.hero-scroll-status {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 @media screen and (max-width: 768px) {

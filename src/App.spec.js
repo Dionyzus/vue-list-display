@@ -4,6 +4,7 @@ import { describe, expect, it, vi } from 'vitest';
 import App from './App.vue';
 import HeroBanner from './components/common/HeroBanner.vue';
 import GamesList from './components/Games/GamesList.vue';
+import { getScrollBehavior } from './common/scrollToElement';
 import { CATALOG_SCROLL_TARGET_ID } from './common/constants';
 
 describe('App', () => {
@@ -54,17 +55,6 @@ describe('App', () => {
   });
 
   it('scrolls from the hero CTA to the catalog filter section', async () => {
-    const scrollIntoView = vi.fn();
-    const originalGetElementById = document.getElementById.bind(document);
-
-    vi.spyOn(document, 'getElementById').mockImplementation((id) => {
-      if (id === CATALOG_SCROLL_TARGET_ID) {
-        return { scrollIntoView };
-      }
-
-      return originalGetElementById(id);
-    });
-
     const wrapper = mount(App, {
       global: {
         stubs: {
@@ -72,16 +62,20 @@ describe('App', () => {
         },
       },
     });
+    document.body.appendChild(wrapper.element);
+
+    const catalogTarget = document.getElementById(CATALOG_SCROLL_TARGET_ID);
+    expect(catalogTarget).not.toBeNull();
+
+    catalogTarget.scrollIntoView = vi.fn();
 
     await wrapper.find('.hero-cta').trigger('click');
 
-    expect(scrollIntoView).toHaveBeenCalledWith({
-      behavior: 'smooth',
+    expect(catalogTarget.scrollIntoView).toHaveBeenCalledWith({
+      behavior: getScrollBehavior(),
       block: 'start',
     });
-    expect(wrapper.find(`#${CATALOG_SCROLL_TARGET_ID}`).exists()).toBe(true);
 
     wrapper.unmount();
-    vi.restoreAllMocks();
   });
 });
