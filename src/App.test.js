@@ -1,11 +1,20 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { mount } from '@vue/test-utils';
 
 import App from './App.vue';
 
+vi.mock('./components/Games/data.js', () => ({
+  default: [],
+}));
+
 describe('App', () => {
+  afterEach(() => {
+    document.body.innerHTML = '';
+  });
+
   it('renders HeroBanner above the catalog list in the content slot', () => {
     const wrapper = mount(App, {
+      attachTo: document.body,
       global: {
         stubs: {
           'font-awesome-icon': true,
@@ -18,5 +27,20 @@ describe('App', () => {
 
     expect(children[0].classList.contains('hero-banner')).toBe(true);
     expect(children[1].classList.contains('game-grid')).toBe(true);
+  });
+
+  it('keeps HeroBanner visible when the catalog has zero games', () => {
+    const wrapper = mount(App, {
+      attachTo: document.body,
+      global: {
+        stubs: {
+          'font-awesome-icon': true,
+        },
+      },
+    });
+
+    expect(wrapper.find('.hero-banner').exists()).toBe(true);
+    expect(wrapper.find('.hero-banner__headline').text()).toBe('Online Casino');
+    expect(wrapper.find('.grid-layout').element.children.length).toBe(0);
   });
 });

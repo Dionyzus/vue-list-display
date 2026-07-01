@@ -14,7 +14,9 @@
   text-align: center;
   background-color: #630000;
   color: white;
-  width: 100%;
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
   padding: 2rem 1rem;
   gap: 0.75rem;
 }
