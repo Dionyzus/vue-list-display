@@ -1,6 +1,7 @@
 import { mount } from '@vue/test-utils';
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { CATALOG_FILTER_ANCHOR_ID } from '../../common/constants';
 import HeroBanner from './HeroBanner.vue';
 
 describe('HeroBanner', () => {
@@ -29,5 +30,42 @@ describe('HeroBanner', () => {
 
     expect(button.element.tagName).toBe('BUTTON');
     expect(button.attributes('type')).toBe('button');
+  });
+
+  describe('scroll to catalog', () => {
+    let anchor;
+
+    beforeEach(() => {
+      anchor = document.createElement('div');
+      anchor.id = CATALOG_FILTER_ANCHOR_ID;
+      anchor.scrollIntoView = vi.fn();
+      document.body.appendChild(anchor);
+    });
+
+    afterEach(() => {
+      if (anchor?.parentNode) {
+        document.body.removeChild(anchor);
+      }
+    });
+
+    it('scrolls to the catalog filter anchor when CTA is clicked', async () => {
+      const wrapper = mount(HeroBanner);
+
+      await wrapper.find('.hero-cta').trigger('click');
+
+      expect(anchor.scrollIntoView).toHaveBeenCalledWith({
+        behavior: 'smooth',
+        block: 'start',
+      });
+    });
+
+    it('does nothing when the catalog filter anchor is missing', async () => {
+      document.body.removeChild(anchor);
+      anchor = null;
+
+      const wrapper = mount(HeroBanner);
+
+      await expect(wrapper.find('.hero-cta').trigger('click')).resolves.not.toThrow();
+    });
   });
 });

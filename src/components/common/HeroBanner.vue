@@ -1,8 +1,19 @@
+<script setup>
+import { CATALOG_FILTER_ANCHOR_ID } from '../../common/constants';
+
+const scrollToCatalog = () => {
+  const catalogFilter = document.getElementById(CATALOG_FILTER_ANCHOR_ID);
+  if (catalogFilter) {
+    catalogFilter.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+};
+</script>
+
 <template>
   <section class="hero">
     <h1 class="hero-headline">Online Casino</h1>
     <p class="hero-tagline">Browse our game catalog</p>
-    <button type="button" class="hero-cta">Browse games</button>
+    <button type="button" class="hero-cta" @click="scrollToCatalog">Browse games</button>
   </section>
 </template>
 
