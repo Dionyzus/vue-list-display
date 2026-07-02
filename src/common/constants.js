@@ -5,6 +5,8 @@ import poker from '@/assets/poker.jpg';
 import roulette from '@/assets/roulette.jpg';
 import slot from '@/assets/slot.jpg';
 
+export const GAME_CATALOG_ANCHOR_ID = 'game-catalog';
+
 export const IMAGE_SOURCES = [bars, cards, jackpot, poker, roulette, slot];
 export const RTP_VALUES = ['85%', '90%', '95%', '92%', '97%'];
 

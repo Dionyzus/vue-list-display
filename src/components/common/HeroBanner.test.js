@@ -2,9 +2,10 @@ import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { mount } from '@vue/test-utils';
 
+import { GAME_CATALOG_ANCHOR_ID } from '../../common/constants';
 import HeroBanner from './HeroBanner.vue';
 
 const heroBannerStyles = readFileSync(
@@ -101,6 +102,21 @@ describe('HeroBanner', () => {
 
     button.element.focus();
     expect(document.activeElement).toBe(button.element);
+  });
+
+  it('scrolls to the catalog filter section when the CTA is activated', async () => {
+    const target = document.createElement('div');
+    target.id = GAME_CATALOG_ANCHOR_ID;
+    target.scrollIntoView = vi.fn();
+    document.body.appendChild(target);
+
+    const wrapper = mountHeroBanner();
+    await wrapper.find('.hero-banner__cta').trigger('click');
+
+    expect(target.scrollIntoView).toHaveBeenCalledWith({
+      behavior: 'smooth',
+      block: 'start',
+    });
   });
 
   it('uses content-padding breakout instead of viewport-width overflow', () => {
