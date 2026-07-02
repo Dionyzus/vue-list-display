@@ -39,3 +39,11 @@ npm run build
 ```sh
 npm run lint
 ```
+
+### Run Unit Tests with [Vitest](https://vitest.dev/)
+
+```sh
+npm test
+```
+
+CI runs the same command on every push and pull request (see `.github/workflows/test.yml`).
