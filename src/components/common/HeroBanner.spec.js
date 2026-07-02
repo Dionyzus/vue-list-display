@@ -4,19 +4,23 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { CATALOG_SCROLL_TARGET_ID } from '../../common/constants';
 import HeroBanner from './HeroBanner.vue';
 
+function findBrowseGamesButton(wrapper) {
+  return wrapper.get('[aria-label="Welcome"] button');
+}
+
 describe('HeroBanner', () => {
   it('renders static PRD copy', () => {
     const wrapper = mount(HeroBanner);
 
-    expect(wrapper.find('.hero-headline').text()).toBe('Online Casino');
-    expect(wrapper.find('.hero-supporting').text()).toBe('Browse our game catalog');
-    expect(wrapper.find('.hero-cta').text()).toBe('Browse games');
+    expect(wrapper.get('h1').text()).toBe('Online Casino');
+    expect(wrapper.get('p').text()).toBe('Browse our game catalog');
+    expect(findBrowseGamesButton(wrapper).text()).toBe('Browse games');
   });
 
-  it('uses burgundy background with no featured content', () => {
+  it('renders a welcome landmark without featured imagery', () => {
     const wrapper = mount(HeroBanner);
 
-    expect(wrapper.find('.hero').exists()).toBe(true);
+    expect(wrapper.get('[aria-label="Welcome"]').exists()).toBe(true);
     expect(wrapper.find('img').exists()).toBe(false);
     expect(wrapper.find('[aria-label="Dismiss"]').exists()).toBe(false);
   });
@@ -24,7 +28,7 @@ describe('HeroBanner', () => {
   it('renders a focusable browse games button', () => {
     const wrapper = mount(HeroBanner);
 
-    const button = wrapper.find('.hero-cta');
+    const button = findBrowseGamesButton(wrapper);
     expect(button.element.tagName).toBe('BUTTON');
     expect(button.attributes('type')).toBe('button');
   });
@@ -37,7 +41,7 @@ describe('HeroBanner', () => {
     document.body.appendChild(target);
 
     const wrapper = mount(HeroBanner);
-    await wrapper.find('.hero-cta').trigger('click');
+    await findBrowseGamesButton(wrapper).trigger('click');
 
     expect(scrollIntoView).toHaveBeenCalledWith({ behavior: 'smooth', block: 'start' });
 
@@ -52,7 +56,7 @@ describe('HeroBanner', () => {
     document.body.appendChild(target);
 
     const wrapper = mount(HeroBanner);
-    const button = wrapper.find('.hero-cta').element;
+    const button = findBrowseGamesButton(wrapper).element;
     button.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
     button.click();
 
@@ -74,7 +78,7 @@ describe('HeroBanner', () => {
     document.body.appendChild(target);
 
     const wrapper = mount(HeroBanner);
-    await wrapper.find('.hero-cta').trigger('click');
+    await findBrowseGamesButton(wrapper).trigger('click');
 
     expect(scrollIntoView).toHaveBeenCalledTimes(2);
     expect(scrollIntoView).toHaveBeenNthCalledWith(1, { behavior: 'smooth', block: 'start' });

@@ -4,17 +4,22 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { CATALOG_SCROLL_TARGET_ID } from './common/constants';
 import App from './App.vue';
 
+function findBrowseGamesButton(wrapper) {
+  return wrapper.get('[aria-label="Welcome"] button');
+}
+
 describe('App', () => {
-  it('renders HeroBanner above the catalog list in the content slot', () => {
+  it('renders the hero above catalog search and category filter controls', () => {
     const wrapper = mount(App);
 
-    const content = wrapper.find('.content');
-    const hero = content.find('.hero');
-    const catalog = content.find('.game-grid');
+    const hero = wrapper.get('[aria-label="Welcome"]');
+    const searchInput = wrapper.get('input[placeholder="Search..."]');
+    const categoryFilter = wrapper.get('select');
 
-    expect(hero.exists()).toBe(true);
-    expect(catalog.exists()).toBe(true);
-    expect(hero.element.compareDocumentPosition(catalog.element)).toBe(
+    expect(hero.element.compareDocumentPosition(searchInput.element)).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING
+    );
+    expect(hero.element.compareDocumentPosition(categoryFilter.element)).toBe(
       Node.DOCUMENT_POSITION_FOLLOWING
     );
   });
@@ -26,7 +31,7 @@ describe('App', () => {
     vi.spyOn(document, 'getElementById').mockReturnValue(target);
 
     const wrapper = mount(App);
-    await wrapper.find('.hero-cta').trigger('click');
+    await findBrowseGamesButton(wrapper).trigger('click');
 
     expect(document.getElementById).toHaveBeenCalledWith(CATALOG_SCROLL_TARGET_ID);
     expect(scrollIntoView).toHaveBeenCalledWith({ behavior: 'smooth', block: 'start' });
