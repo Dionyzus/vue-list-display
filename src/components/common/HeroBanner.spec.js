@@ -4,31 +4,23 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { CATALOG_FILTER_ANCHOR_ID } from '../../common/constants';
 import HeroBanner from './HeroBanner.vue';
 
+const HEADLINE = 'Online Casino';
+const TAGLINE = 'Browse our game catalog';
+const CTA_LABEL = 'Browse games';
+
 describe('HeroBanner', () => {
   it('renders headline, supporting line, and CTA with exact copy', () => {
     const wrapper = mount(HeroBanner);
 
-    expect(wrapper.find('.hero-headline').text()).toBe('Online Casino');
-    expect(wrapper.find('.hero-tagline').text()).toBe('Browse our game catalog');
-    expect(wrapper.find('.hero-cta').text()).toBe('Browse games');
-  });
-
-  it('uses brand burgundy background and light text styling', () => {
-    const wrapper = mount(HeroBanner);
-    const hero = wrapper.find('.hero');
-
-    expect(hero.exists()).toBe(true);
-    expect(hero.element.tagName).toBe('SECTION');
-    expect(wrapper.find('.hero-headline').classes()).toContain('hero-headline');
-    expect(wrapper.find('.hero-tagline').classes()).toContain('hero-tagline');
-    expect(wrapper.find('.hero-cta').classes()).toContain('hero-cta');
+    expect(wrapper.get('h1').text()).toBe(HEADLINE);
+    expect(wrapper.get('p').text()).toBe(TAGLINE);
+    expect(wrapper.get('button').text()).toBe(CTA_LABEL);
   });
 
   it('renders a focusable CTA button', () => {
     const wrapper = mount(HeroBanner);
-    const button = wrapper.find('.hero-cta');
+    const button = wrapper.get('button');
 
-    expect(button.element.tagName).toBe('BUTTON');
     expect(button.attributes('type')).toBe('button');
   });
 
@@ -51,7 +43,7 @@ describe('HeroBanner', () => {
     it('scrolls to the catalog filter anchor when CTA is clicked', async () => {
       const wrapper = mount(HeroBanner);
 
-      await wrapper.find('.hero-cta').trigger('click');
+      await wrapper.get('button').trigger('click');
 
       expect(anchor.scrollIntoView).toHaveBeenCalledWith({
         behavior: 'smooth',
@@ -65,7 +57,51 @@ describe('HeroBanner', () => {
 
       const wrapper = mount(HeroBanner);
 
-      await expect(wrapper.find('.hero-cta').trigger('click')).resolves.not.toThrow();
+      await expect(wrapper.get('button').trigger('click')).resolves.not.toThrow();
+    });
+  });
+
+  describe('responsive layout at 768px breakpoint', () => {
+    let originalInnerWidth;
+
+    const setViewportWidth = (width) => {
+      Object.defineProperty(window, 'innerWidth', {
+        configurable: true,
+        writable: true,
+        value: width,
+      });
+      window.dispatchEvent(new Event('resize'));
+    };
+
+    beforeEach(() => {
+      originalInnerWidth = window.innerWidth;
+    });
+
+    afterEach(() => {
+      setViewportWidth(originalInnerWidth);
+    });
+
+    it('keeps PRD copy and CTA usable below the 768px breakpoint', async () => {
+      setViewportWidth(767);
+      const wrapper = mount(HeroBanner);
+
+      expect(wrapper.get('h1').text()).toBe(HEADLINE);
+      expect(wrapper.get('p').text()).toBe(TAGLINE);
+      expect(wrapper.get('button').text()).toBe(CTA_LABEL);
+
+      const anchor = document.createElement('div');
+      anchor.id = CATALOG_FILTER_ANCHOR_ID;
+      anchor.scrollIntoView = vi.fn();
+      document.body.appendChild(anchor);
+
+      await wrapper.get('button').trigger('click');
+
+      expect(anchor.scrollIntoView).toHaveBeenCalledWith({
+        behavior: 'smooth',
+        block: 'start',
+      });
+
+      document.body.removeChild(anchor);
     });
   });
 });

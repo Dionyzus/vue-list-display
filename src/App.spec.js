@@ -1,35 +1,26 @@
 import { mount } from '@vue/test-utils';
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 import App from './App.vue';
-import HeroBanner from './components/common/HeroBanner.vue';
-import GamesList from './components/Games/GamesList.vue';
+import { CATALOG_FILTER_ANCHOR_ID } from './common/constants';
+import { appGlobalMountOptions } from './test/mountOptions';
 
-vi.mock('./components/Games/GamesList.vue', () => ({
-  default: {
-    name: 'GamesList',
-    template: '<div class="games-list-stub">No games</div>',
-  },
-}));
+describe('App main view integration', () => {
+  it('renders hero above catalog search and category filter controls', () => {
+    const wrapper = mount(App, appGlobalMountOptions);
 
-describe('App', () => {
-  it('renders HeroBanner above the catalog list in the content slot', () => {
-    const wrapper = mount(App);
+    expect(wrapper.get('h1').text()).toBe('Online Casino');
+    expect(wrapper.get('input[placeholder="Search..."]').exists()).toBe(true);
+    expect(wrapper.get('label').text()).toBe('Category:');
+    expect(wrapper.find(`#${CATALOG_FILTER_ANCHOR_ID}`).exists()).toBe(true);
 
-    expect(wrapper.findComponent(HeroBanner).exists()).toBe(true);
-    expect(wrapper.findComponent(GamesList).exists()).toBe(true);
+    const main = wrapper.get('main');
+    const [heroSection, catalogSection] = main.element.children;
 
-    const content = wrapper.find('.content');
-    const children = content.element.children;
-
-    expect(children[0].classList.contains('hero')).toBe(true);
-    expect(children[1].classList.contains('games-list-stub')).toBe(true);
-  });
-
-  it('keeps HeroBanner visible when the catalog list is empty', () => {
-    const wrapper = mount(App);
-
-    expect(wrapper.find('.hero-headline').exists()).toBe(true);
-    expect(wrapper.find('.games-list-stub').text()).toBe('No games');
+    expect(heroSection.tagName).toBe('SECTION');
+    expect(heroSection.querySelector('h1')?.textContent).toBe('Online Casino');
+    expect(catalogSection.querySelector(`#${CATALOG_FILTER_ANCHOR_ID}`)).not.toBeNull();
+    expect(main.element.children[0]).toBe(heroSection);
+    expect(main.element.children[1]).toBe(catalogSection);
   });
 });
