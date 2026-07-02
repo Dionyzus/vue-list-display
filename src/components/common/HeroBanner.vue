@@ -1,8 +1,23 @@
+<script setup>
+import { GAMES_CATALOG_ANCHOR_ID } from '../../common/pageLayout.js';
+
+function scrollToCatalog() {
+  const target = document.getElementById(GAMES_CATALOG_ANCHOR_ID);
+  if (!target) return;
+
+  try {
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } catch {
+    target.scrollIntoView();
+  }
+}
+</script>
+
 <template>
   <section class="hero-banner" data-testid="hero-banner" aria-label="Welcome">
     <h1 class="hero-headline">Online Casino</h1>
     <p class="hero-supporting">Browse our game catalog</p>
-    <button type="button" class="hero-cta">Browse games</button>
+    <button type="button" class="hero-cta" @click="scrollToCatalog">Browse games</button>
   </section>
 </template>
 

@@ -1,9 +1,10 @@
 import { mount } from '@vue/test-utils';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import {
   APP_PAGE_CONTENT_PADDING_VAR,
   APP_PAGE_MOBILE_BREAKPOINT,
+  GAMES_CATALOG_ANCHOR_ID,
   HERO_BANNER_MOBILE_TOKENS,
 } from '../../common/pageLayout.js';
 import HeroBanner from './HeroBanner.vue';
@@ -53,5 +54,43 @@ describe('HeroBanner', () => {
     expect(heroBannerSource).toMatch(/\.hero-cta:focus-visible\s*\{[^}]*outline:\s*2px solid white/);
 
     wrapper.element.remove();
+  });
+
+  it('scrolls to the catalog anchor when the CTA is activated', async () => {
+    const scrollIntoView = vi.fn();
+    const target = document.createElement('div');
+    target.id = GAMES_CATALOG_ANCHOR_ID;
+    target.scrollIntoView = scrollIntoView;
+    document.body.appendChild(target);
+
+    const wrapper = mount(HeroBanner);
+    await wrapper.find('.hero-cta').trigger('click');
+
+    expect(scrollIntoView).toHaveBeenCalledWith({ behavior: 'smooth', block: 'start' });
+
+    target.remove();
+    wrapper.unmount();
+  });
+
+  it('falls back to instant scroll when smooth behavior is unsupported', async () => {
+    const scrollIntoView = vi.fn((options) => {
+      if (options?.behavior === 'smooth') {
+        throw new TypeError('smooth not supported');
+      }
+    });
+    const target = document.createElement('div');
+    target.id = GAMES_CATALOG_ANCHOR_ID;
+    target.scrollIntoView = scrollIntoView;
+    document.body.appendChild(target);
+
+    const wrapper = mount(HeroBanner);
+    await wrapper.find('.hero-cta').trigger('click');
+
+    expect(scrollIntoView).toHaveBeenCalledTimes(2);
+    expect(scrollIntoView).toHaveBeenNthCalledWith(1, { behavior: 'smooth', block: 'start' });
+    expect(scrollIntoView).toHaveBeenNthCalledWith(2);
+
+    target.remove();
+    wrapper.unmount();
   });
 });

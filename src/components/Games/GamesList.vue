@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue';
 
 import { CATEGORIES } from '../../common/constants';
+import { GAMES_CATALOG_ANCHOR_ID } from '../../common/pageLayout.js';
 import AppFilter from '../common/AppFilter.vue';
 import AppPagination from '../common/AppPagination.vue';
 import AppSearchBar from '../common/AppSearchBar.vue';
@@ -50,7 +51,7 @@ const handlePageChange = pageNumber => {
 
 <template>
   <div class="game-grid">
-    <div class="filter-section">
+    <div :id="GAMES_CATALOG_ANCHOR_ID" class="filter-section">
       <div class="filter-column">
         <AppSearchBar @onSearch="searchGames" />
       </div>

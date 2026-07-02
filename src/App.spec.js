@@ -1,6 +1,7 @@
 import { mount } from '@vue/test-utils';
 import { describe, expect, it, vi } from 'vitest';
 
+import { GAMES_CATALOG_ANCHOR_ID } from './common/pageLayout.js';
 import App from './App.vue';
 
 vi.mock('./components/Games/data.js', () => ({
@@ -40,5 +41,44 @@ describe('App', () => {
     expect(wrapper.find('.hero-supporting').text()).toBe('Browse our game catalog');
     expect(wrapper.find('.game-grid').exists()).toBe(true);
     expect(wrapper.findAll('.grid-item')).toHaveLength(0);
+  });
+
+  it('exposes a document-level scroll target on the catalog filter section', () => {
+    const wrapper = mount(App, {
+      global: {
+        stubs: {
+          AppNavigation: true,
+        },
+      },
+    });
+
+    const anchor = wrapper.find(`#${GAMES_CATALOG_ANCHOR_ID}`);
+
+    expect(anchor.exists()).toBe(true);
+    expect(anchor.classes()).toContain('filter-section');
+  });
+
+  it('scrolls to the catalog filter section when Browse games is activated', async () => {
+    const scrollIntoView = vi.fn();
+    const wrapper = mount(App, {
+      global: {
+        stubs: {
+          AppNavigation: true,
+        },
+      },
+    });
+
+    const anchor = wrapper.find(`#${GAMES_CATALOG_ANCHOR_ID}`);
+    anchor.element.scrollIntoView = scrollIntoView;
+
+    vi.spyOn(document, 'getElementById').mockImplementation((id) =>
+      id === GAMES_CATALOG_ANCHOR_ID ? anchor.element : null,
+    );
+
+    await wrapper.find('.hero-cta').trigger('click');
+
+    expect(scrollIntoView).toHaveBeenCalledWith({ behavior: 'smooth', block: 'start' });
+
+    vi.restoreAllMocks();
   });
 });

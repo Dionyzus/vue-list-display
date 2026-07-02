@@ -1,6 +1,9 @@
 /** AppPage `.content` padding token consumed by HeroBanner full-bleed margins. */
 export const APP_PAGE_CONTENT_PADDING_VAR = '--app-page-content-padding';
 
+/** Document-level scroll target for the catalog filter/grid section. */
+export const GAMES_CATALOG_ANCHOR_ID = 'games-catalog';
+
 export const APP_PAGE_MOBILE_BREAKPOINT = '768px';
 
 export const HERO_BANNER_MOBILE_TOKENS = {
