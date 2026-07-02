@@ -14,6 +14,10 @@ const heroBannerStyles = readFileSync(
   'utf8',
 ).match(/<style scoped>([\s\S]*?)<\/style>/)?.[1] ?? '';
 
+const HERO_HEADLINE = 'Online Casino';
+const HERO_SUPPORTING = 'Browse our game catalog';
+const HERO_CTA_LABEL = 'Browse games';
+
 function getMobileMediaBlock(styles) {
   const mediaIndex = styles.indexOf('@media screen and (max-width: 768px)');
   if (mediaIndex === -1) {
@@ -66,6 +70,14 @@ function removeMobileMediaBlock(styles) {
   return styles;
 }
 
+function findHeroSection(wrapper) {
+  return wrapper.find('section[aria-labelledby="hero-headline"]');
+}
+
+function findHeroCta(wrapper) {
+  return wrapper.find('button[type="button"]');
+}
+
 function mountHeroBanner() {
   return mount(HeroBanner, {
     attachTo: document.body,
@@ -89,22 +101,24 @@ describe('HeroBanner', () => {
   it('renders headline, supporting line, and CTA with exact copy', () => {
     const wrapper = mount(HeroBanner);
 
-    expect(wrapper.find('.hero-banner__headline').text()).toBe('Online Casino');
-    expect(wrapper.find('.hero-banner__supporting').text()).toBe('Browse our game catalog');
-    expect(wrapper.find('.hero-banner__cta').text()).toBe('Browse games');
+    expect(wrapper.get('#hero-headline').text()).toBe(HERO_HEADLINE);
+    expect(wrapper.text()).toContain(HERO_SUPPORTING);
+    expect(findHeroCta(wrapper).text()).toBe(HERO_CTA_LABEL);
   });
 
-  it('uses the hero-banner root element with supporting content always visible', () => {
+  it('uses a labelled hero section with supporting content always visible', () => {
     const wrapper = mount(HeroBanner);
+    const hero = findHeroSection(wrapper);
 
-    expect(wrapper.find('section.hero-banner').exists()).toBe(true);
-    expect(wrapper.find('.hero-banner__supporting').exists()).toBe(true);
-    expect(wrapper.find('.hero-banner__headline').exists()).toBe(true);
+    expect(hero.exists()).toBe(true);
+    expect(hero.attributes('aria-labelledby')).toBe('hero-headline');
+    expect(wrapper.get('#hero-headline').exists()).toBe(true);
+    expect(wrapper.text()).toContain(HERO_SUPPORTING);
   });
 
   it('renders a focusable CTA button', () => {
     const wrapper = mountHeroBanner();
-    const button = wrapper.find('.hero-banner__cta');
+    const button = findHeroCta(wrapper);
 
     expect(button.element.tagName).toBe('BUTTON');
     expect(button.attributes('type')).toBe('button');
@@ -121,7 +135,7 @@ describe('HeroBanner', () => {
     document.body.appendChild(target);
 
     const wrapper = mountHeroBanner();
-    await wrapper.find('.hero-banner__cta').trigger('click');
+    await findHeroCta(wrapper).trigger('click');
 
     expect(target.scrollIntoView).toHaveBeenCalledWith({
       behavior: 'smooth',
@@ -138,7 +152,7 @@ describe('HeroBanner', () => {
       document.body.appendChild(target);
 
       const wrapper = mountHeroBanner();
-      const cta = wrapper.find('.hero-banner__cta');
+      const cta = findHeroCta(wrapper);
 
       await activateCtaWithKeyboard(cta, key);
 
