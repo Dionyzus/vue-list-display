@@ -7,34 +7,47 @@
 </template>
 
 <style scoped>
+/* Full-bleed: negates AppPage `.content` padding via --app-page-content-padding. */
 .hero-banner {
+  --hero-banner-padding-block: 2.5rem;
+  --hero-banner-padding-inline: 1.5rem;
+  --hero-headline-size: 2rem;
+  --hero-supporting-size: 1.125rem;
+  --hero-cta-padding-block: 0.625rem;
+  --hero-cta-padding-inline: 1.25rem;
+  --hero-cta-size: 1rem;
+  --hero-banner-gap: 0.75rem;
+  --hero-banner-bottom-margin: 1rem;
+
   background-color: #630000;
   color: white;
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.75rem;
-  padding: 2.5rem 1.5rem;
-  margin: -1rem -1rem 1rem -1rem;
-  width: calc(100% + 2rem);
+  gap: var(--hero-banner-gap);
+  padding: var(--hero-banner-padding-block) var(--hero-banner-padding-inline);
+  margin: calc(-1 * var(--app-page-content-padding, 1rem))
+    calc(-1 * var(--app-page-content-padding, 1rem))
+    var(--hero-banner-bottom-margin);
+  width: calc(100% + 2 * var(--app-page-content-padding, 1rem));
 }
 
 .hero-headline {
   margin: 0;
-  font-size: 2rem;
+  font-size: var(--hero-headline-size);
   font-weight: 700;
 }
 
 .hero-supporting {
   margin: 0;
-  font-size: 1.125rem;
+  font-size: var(--hero-supporting-size);
 }
 
 .hero-cta {
   margin-top: 0.25rem;
-  padding: 0.625rem 1.25rem;
-  font-size: 1rem;
+  padding: var(--hero-cta-padding-block) var(--hero-cta-padding-inline);
+  font-size: var(--hero-cta-size);
   font-weight: 600;
   color: #630000;
   background-color: white;
@@ -50,23 +63,15 @@
 
 @media screen and (max-width: 768px) {
   .hero-banner {
-    padding: 1.5rem 1rem;
-    margin: -0.5rem -0.5rem 0.5rem -0.5rem;
-    width: calc(100% + 1rem);
-    gap: 0.5rem;
-  }
-
-  .hero-headline {
-    font-size: 1.5rem;
-  }
-
-  .hero-supporting {
-    font-size: 1rem;
-  }
-
-  .hero-cta {
-    padding: 0.5rem 1rem;
-    font-size: 0.875rem;
+    --hero-banner-padding-block: 1.5rem;
+    --hero-banner-padding-inline: 1rem;
+    --hero-headline-size: 1.5rem;
+    --hero-supporting-size: 1rem;
+    --hero-cta-padding-block: 0.5rem;
+    --hero-cta-padding-inline: 1rem;
+    --hero-cta-size: 0.875rem;
+    --hero-banner-gap: 0.5rem;
+    --hero-banner-bottom-margin: 0.5rem;
   }
 }
 </style>

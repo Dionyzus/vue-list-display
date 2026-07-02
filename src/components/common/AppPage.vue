@@ -27,10 +27,11 @@
 }
 
 .content {
+  --app-page-content-padding: 1rem;
   display: flex;
   flex-direction: column;
   margin-top: 2rem;
-  padding: 1rem;
+  padding: var(--app-page-content-padding);
 }
 
 @media screen and (max-width: 768px) {
@@ -39,8 +40,8 @@
   }
 
   .content {
+    --app-page-content-padding: 0.5rem;
     margin-top: 0.25rem;
-    padding: 0.5rem;
   }
 }
 </style>
