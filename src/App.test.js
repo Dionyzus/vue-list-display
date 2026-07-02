@@ -22,7 +22,9 @@ describe('App', () => {
     const wrapper = mount(App);
 
     expect(wrapper.find('.hero-banner').exists()).toBe(true);
+    expect(wrapper.find('.hero-banner__headline').text()).toBe('Online Casino');
     expect(wrapper.find('.hero-banner__supporting').text()).toBe('Browse our game catalog');
+    expect(wrapper.find('.hero-banner__cta').text()).toBe('Browse games');
     expect(wrapper.findAll('.grid-layout > *')).toHaveLength(0);
   });
 });

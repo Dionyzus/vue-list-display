@@ -12,9 +12,8 @@
   color: white;
   text-align: center;
   padding: 3rem 1.5rem;
-  margin-left: calc(50% - 50vw);
-  margin-right: calc(50% - 50vw);
-  width: 100vw;
+  margin-left: -1rem;
+  margin-right: -1rem;
 }
 
 .hero-banner__headline {
@@ -49,6 +48,8 @@
 @media screen and (max-width: 768px) {
   .hero-banner {
     padding: 2rem 1rem;
+    margin-left: -0.5rem;
+    margin-right: -0.5rem;
   }
 
   .hero-banner__headline {
