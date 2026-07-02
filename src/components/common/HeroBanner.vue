@@ -1,17 +1,36 @@
 <script setup>
+import {
+  HERO_BANNER_CTA_LABEL,
+  HERO_BANNER_HEADLINE,
+  HERO_BANNER_SUPPORTING,
+} from '../../common/constants';
 import { scrollToGameCatalog } from '../../utils/scrollToGameCatalog';
+
+function handleCtaClick() {
+  scrollToGameCatalog();
+}
+
+function handleCtaKeydown(event) {
+  if (event.key !== 'Enter' && event.key !== ' ') {
+    return;
+  }
+
+  event.preventDefault();
+  scrollToGameCatalog();
+}
 </script>
 
 <template>
   <section class="hero-banner" aria-labelledby="hero-headline">
-    <h1 id="hero-headline" class="hero-banner__headline">Online Casino</h1>
-    <p class="hero-banner__supporting">Browse our game catalog</p>
+    <h1 id="hero-headline" class="hero-banner__headline">{{ HERO_BANNER_HEADLINE }}</h1>
+    <p class="hero-banner__supporting">{{ HERO_BANNER_SUPPORTING }}</p>
     <button
       type="button"
       class="hero-banner__cta"
-      @click="scrollToGameCatalog"
+      @click="handleCtaClick"
+      @keydown="handleCtaKeydown"
     >
-      Browse games
+      {{ HERO_BANNER_CTA_LABEL }}
     </button>
   </section>
 </template>

@@ -9,6 +9,10 @@ export const GAME_CATALOG_ANCHOR_ID = 'game-catalog';
 export const APP_HEADER_SCROLL_OFFSET = '4rem';
 export const APP_HEADER_SCROLL_OFFSET_MOBILE = '3rem';
 
+export const HERO_BANNER_HEADLINE = 'Online Casino';
+export const HERO_BANNER_SUPPORTING = 'Browse our game catalog';
+export const HERO_BANNER_CTA_LABEL = 'Browse games';
+
 export const IMAGE_SOURCES = [bars, cards, jackpot, poker, roulette, slot];
 export const RTP_VALUES = ['85%', '90%', '95%', '92%', '97%'];
 

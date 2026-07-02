@@ -1,16 +1,36 @@
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { faBars } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { mount } from '@vue/test-utils';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import App from './App.vue';
-import { GAME_CATALOG_ANCHOR_ID } from './common/constants';
+import {
+  GAME_CATALOG_ANCHOR_ID,
+  HERO_BANNER_CTA_LABEL,
+  HERO_BANNER_HEADLINE,
+  HERO_BANNER_SUPPORTING,
+} from './common/constants';
+
+library.add(faBars);
 
 vi.mock('./components/Games/data.js', () => ({
   default: [],
 }));
 
-const HERO_HEADLINE = 'Online Casino';
-const HERO_SUPPORTING = 'Browse our game catalog';
-const HERO_CTA_LABEL = 'Browse games';
+function mountApp(options = {}) {
+  const { global, ...rest } = options;
+
+  return mount(App, {
+    global: {
+      components: {
+        'font-awesome-icon': FontAwesomeIcon,
+      },
+      ...global,
+    },
+    ...rest,
+  });
+}
 
 function findHeroSection(wrapper) {
   return wrapper.find('section[aria-labelledby="hero-headline"]');
@@ -37,10 +57,6 @@ function appearsBefore(earlierElement, laterElement) {
 async function activateCtaWithKeyboard(button, key) {
   button.element.focus();
   await button.trigger('keydown', { key });
-  await button.trigger('keyup', { key });
-  button.element.dispatchEvent(
-    new MouseEvent('click', { bubbles: true, cancelable: true, detail: 0 }),
-  );
 }
 
 describe('App', () => {
@@ -49,7 +65,7 @@ describe('App', () => {
   });
 
   it('renders HeroBanner above catalog search and category filter controls', () => {
-    const wrapper = mount(App);
+    const wrapper = mountApp();
 
     const hero = findHeroSection(wrapper);
     const searchInput = findCatalogSearchInput(wrapper);
@@ -64,17 +80,17 @@ describe('App', () => {
   });
 
   it('keeps HeroBanner visible when the catalog list is empty', () => {
-    const wrapper = mount(App);
+    const wrapper = mountApp();
 
     expect(findHeroSection(wrapper).exists()).toBe(true);
-    expect(wrapper.get('#hero-headline').text()).toBe(HERO_HEADLINE);
-    expect(wrapper.text()).toContain(HERO_SUPPORTING);
-    expect(findHeroCta(wrapper).text()).toBe(HERO_CTA_LABEL);
-    expect(wrapper.findAll('.grid-layout > *')).toHaveLength(0);
+    expect(wrapper.get('#hero-headline').text()).toBe(HERO_BANNER_HEADLINE);
+    expect(wrapper.text()).toContain(HERO_BANNER_SUPPORTING);
+    expect(findHeroCta(wrapper).text()).toBe(HERO_BANNER_CTA_LABEL);
+    expect(wrapper.findAll('[aria-label="View Details"]')).toHaveLength(0);
   });
 
   it('exposes a document-level scroll target on the catalog filter section', () => {
-    const wrapper = mount(App);
+    const wrapper = mountApp();
     const anchor = wrapper.find(`#${GAME_CATALOG_ANCHOR_ID}`);
 
     expect(anchor.exists()).toBe(true);
@@ -83,7 +99,7 @@ describe('App', () => {
   });
 
   it('scrolls to the catalog filter section when Browse games is clicked', async () => {
-    const wrapper = mount(App, { attachTo: document.body });
+    const wrapper = mountApp({ attachTo: document.body });
     const target = document.getElementById(GAME_CATALOG_ANCHOR_ID);
     target.scrollIntoView = vi.fn();
 
@@ -98,7 +114,7 @@ describe('App', () => {
   it.each(['Enter', ' '])(
     'scrolls to the catalog filter section when Browse games is activated with %s',
     async key => {
-      const wrapper = mount(App, { attachTo: document.body });
+      const wrapper = mountApp({ attachTo: document.body });
       const target = document.getElementById(GAME_CATALOG_ANCHOR_ID);
       target.scrollIntoView = vi.fn();
       const cta = findHeroCta(wrapper);
