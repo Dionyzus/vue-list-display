@@ -76,6 +76,7 @@ const handlePageChange = pageNumber => {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  scroll-margin-top: var(--app-header-scroll-offset);
 }
 
 .filter-column {

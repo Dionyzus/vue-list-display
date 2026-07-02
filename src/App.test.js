@@ -1,12 +1,30 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
-import { mount } from '@vue/test-utils';
+import { readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-import { GAME_CATALOG_ANCHOR_ID } from './common/constants';
+import { mount } from '@vue/test-utils';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+
 import App from './App.vue';
+import { GAME_CATALOG_ANCHOR_ID } from './common/constants';
+
+const gamesListStyles = readFileSync(
+  join(dirname(fileURLToPath(import.meta.url)), 'components/Games/GamesList.vue'),
+  'utf8',
+).match(/<style scoped>([\s\S]*?)<\/style>/)?.[1] ?? '';
 
 vi.mock('./components/Games/data.js', () => ({
   default: [],
 }));
+
+async function activateCtaWithKeyboard(button, key) {
+  button.element.focus();
+  await button.trigger('keydown', { key });
+  await button.trigger('keyup', { key });
+  button.element.dispatchEvent(
+    new MouseEvent('click', { bubbles: true, cancelable: true, detail: 0 }),
+  );
+}
 
 describe('App', () => {
   afterEach(() => {
@@ -41,6 +59,14 @@ describe('App', () => {
     expect(anchor.classes()).toContain('filter-section');
   });
 
+  it('offsets the catalog anchor below the fixed header', () => {
+    mount(App, { attachTo: document.body });
+
+    expect(document.getElementById(GAME_CATALOG_ANCHOR_ID)).not.toBeNull();
+    expect(gamesListStyles).toContain('scroll-margin-top: var(--app-header-scroll-offset)');
+    expect(gamesListStyles).toContain('.filter-section');
+  });
+
   it('scrolls to the catalog filter section when Browse games is clicked', async () => {
     const wrapper = mount(App, { attachTo: document.body });
     const target = document.getElementById(GAME_CATALOG_ANCHOR_ID);
@@ -53,4 +79,22 @@ describe('App', () => {
       block: 'start',
     });
   });
+
+  it.each(['Enter', ' '])(
+    'scrolls to the catalog filter section when Browse games is activated with %s',
+    async key => {
+      const wrapper = mount(App, { attachTo: document.body });
+      const target = document.getElementById(GAME_CATALOG_ANCHOR_ID);
+      target.scrollIntoView = vi.fn();
+      const cta = wrapper.find('.hero-banner__cta');
+
+      await activateCtaWithKeyboard(cta, key);
+
+      expect(document.activeElement).toBe(cta.element);
+      expect(target.scrollIntoView).toHaveBeenCalledWith({
+        behavior: 'smooth',
+        block: 'start',
+      });
+    },
+  );
 });

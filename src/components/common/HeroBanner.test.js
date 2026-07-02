@@ -2,10 +2,11 @@ import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { afterEach, describe, expect, it, vi } from 'vitest';
 import { mount } from '@vue/test-utils';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { GAME_CATALOG_ANCHOR_ID } from '../../common/constants';
+import { scrollToGameCatalog } from '../../utils/scrollToGameCatalog';
 import HeroBanner from './HeroBanner.vue';
 
 const heroBannerStyles = readFileSync(
@@ -71,6 +72,15 @@ function mountHeroBanner() {
   });
 }
 
+async function activateCtaWithKeyboard(button, key) {
+  button.element.focus();
+  await button.trigger('keydown', { key });
+  await button.trigger('keyup', { key });
+  button.element.dispatchEvent(
+    new MouseEvent('click', { bubbles: true, cancelable: true, detail: 0 }),
+  );
+}
+
 describe('HeroBanner', () => {
   afterEach(() => {
     document.body.innerHTML = '';
@@ -104,7 +114,7 @@ describe('HeroBanner', () => {
     expect(document.activeElement).toBe(button.element);
   });
 
-  it('scrolls to the catalog filter section when the CTA is activated', async () => {
+  it('scrolls to the catalog filter section when the CTA is clicked', async () => {
     const target = document.createElement('div');
     target.id = GAME_CATALOG_ANCHOR_ID;
     target.scrollIntoView = vi.fn();
@@ -117,6 +127,33 @@ describe('HeroBanner', () => {
       behavior: 'smooth',
       block: 'start',
     });
+  });
+
+  it.each(['Enter', ' '])(
+    'scrolls to the catalog filter section when the CTA is activated with %s',
+    async key => {
+      const target = document.createElement('div');
+      target.id = GAME_CATALOG_ANCHOR_ID;
+      target.scrollIntoView = vi.fn();
+      document.body.appendChild(target);
+
+      const wrapper = mountHeroBanner();
+      const cta = wrapper.find('.hero-banner__cta');
+
+      await activateCtaWithKeyboard(cta, key);
+
+      expect(document.activeElement).toBe(cta.element);
+      expect(target.scrollIntoView).toHaveBeenCalledWith({
+        behavior: 'smooth',
+        block: 'start',
+      });
+    },
+  );
+
+  it('reports when the catalog anchor is missing instead of silently scrolling', () => {
+    mountHeroBanner();
+
+    expect(scrollToGameCatalog()).toBe(false);
   });
 
   it('uses content-padding breakout instead of viewport-width overflow', () => {

@@ -1,19 +1,18 @@
 <script setup>
-import { GAME_CATALOG_ANCHOR_ID } from '../../common/constants';
-
-function scrollToCatalog() {
-  document.getElementById(GAME_CATALOG_ANCHOR_ID)?.scrollIntoView({
-    behavior: 'smooth',
-    block: 'start',
-  });
-}
+import { scrollToGameCatalog } from '../../utils/scrollToGameCatalog';
 </script>
 
 <template>
   <section class="hero-banner" aria-labelledby="hero-headline">
     <h1 id="hero-headline" class="hero-banner__headline">Online Casino</h1>
     <p class="hero-banner__supporting">Browse our game catalog</p>
-    <button type="button" class="hero-banner__cta" @click="scrollToCatalog">Browse games</button>
+    <button
+      type="button"
+      class="hero-banner__cta"
+      @click="scrollToGameCatalog"
+    >
+      Browse games
+    </button>
   </section>
 </template>
 

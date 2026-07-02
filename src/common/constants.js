@@ -6,6 +6,8 @@ import roulette from '@/assets/roulette.jpg';
 import slot from '@/assets/slot.jpg';
 
 export const GAME_CATALOG_ANCHOR_ID = 'game-catalog';
+export const APP_HEADER_SCROLL_OFFSET = '4rem';
+export const APP_HEADER_SCROLL_OFFSET_MOBILE = '3rem';
 
 export const IMAGE_SOURCES = [bars, cards, jackpot, poker, roulette, slot];
 export const RTP_VALUES = ['85%', '90%', '95%', '92%', '97%'];
