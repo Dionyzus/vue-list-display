@@ -1,9 +1,18 @@
 import { mount } from '@vue/test-utils';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import * as scrollModule from '../../utils/scrollToCatalog.js';
+import { GAME_CATALOG_ANCHOR_ID } from '../../common/catalogAnchor.js';
 import heroBannerSource from './HeroBanner.vue?raw';
 import HeroBanner from './HeroBanner.vue';
+
+const HERO_HEADLINE = 'Online Casino';
+const HERO_SUPPORTING = 'Browse our game catalog';
+const HERO_CTA_LABEL = 'Browse games';
+
+const findHeroSection = wrapper => wrapper.find('section[aria-labelledby="hero-headline"]');
+const findHeroHeadline = wrapper => wrapper.find('#hero-headline');
+const findHeroSupporting = wrapper => findHeroSection(wrapper).find('p');
+const findBrowseGamesCta = wrapper => wrapper.find('button[type="button"]');
 
 describe('HeroBanner', () => {
   afterEach(() => {
@@ -11,17 +20,17 @@ describe('HeroBanner', () => {
     document.body.innerHTML = '';
   });
 
-  it('renders static hero copy and CTA', () => {
+  it('renders PRD headline, supporting line, and CTA copy', () => {
     const wrapper = mount(HeroBanner);
 
-    expect(wrapper.find('.hero-headline').text()).toBe('Online Casino');
-    expect(wrapper.find('.hero-supporting').text()).toBe('Browse our game catalog');
-    expect(wrapper.find('.hero-cta').text()).toBe('Browse games');
+    expect(findHeroHeadline(wrapper).text()).toBe(HERO_HEADLINE);
+    expect(findHeroSupporting(wrapper).text()).toBe(HERO_SUPPORTING);
+    expect(findBrowseGamesCta(wrapper).text()).toBe(HERO_CTA_LABEL);
   });
 
   it('renders a focusable CTA button', () => {
     const wrapper = mount(HeroBanner);
-    const cta = wrapper.find('button.hero-cta').element;
+    const cta = findBrowseGamesCta(wrapper).element;
 
     expect(cta).toBeTruthy();
     expect(cta.getAttribute('type')).toBe('button');
@@ -31,24 +40,36 @@ describe('HeroBanner', () => {
     expect(cta.getAttribute('aria-disabled')).not.toBe('true');
   });
 
-  it('scrolls to the catalog filter anchor when the CTA is clicked', async () => {
-    const scrollSpy = vi.spyOn(scrollModule, 'scrollToCatalog');
+  it('scrolls the catalog anchor into view when the CTA is clicked', async () => {
+    const catalogAnchor = document.createElement('div');
+    catalogAnchor.id = GAME_CATALOG_ANCHOR_ID;
+    catalogAnchor.scrollIntoView = vi.fn();
+    document.body.appendChild(catalogAnchor);
 
     const wrapper = mount(HeroBanner);
-    await wrapper.find('button.hero-cta').trigger('click');
+    await findBrowseGamesCta(wrapper).trigger('click');
 
-    expect(scrollSpy).toHaveBeenCalledOnce();
+    expect(catalogAnchor.scrollIntoView).toHaveBeenCalledWith({
+      behavior: expect.any(String),
+      block: 'start',
+    });
   });
 
   it.each(['Enter', ' '])('scrolls to the catalog when the CTA is activated with %j', async key => {
-    const scrollSpy = vi.spyOn(scrollModule, 'scrollToCatalog');
+    const catalogAnchor = document.createElement('div');
+    catalogAnchor.id = GAME_CATALOG_ANCHOR_ID;
+    catalogAnchor.scrollIntoView = vi.fn();
+    document.body.appendChild(catalogAnchor);
 
     const wrapper = mount(HeroBanner);
-    const cta = wrapper.find('button.hero-cta');
+    const cta = findBrowseGamesCta(wrapper);
 
     await cta.trigger('keydown', { key });
 
-    expect(scrollSpy).toHaveBeenCalledOnce();
+    expect(catalogAnchor.scrollIntoView).toHaveBeenCalledWith({
+      behavior: expect.any(String),
+      block: 'start',
+    });
   });
 
   it('uses brand burgundy background, light text, and no decorative chrome', () => {

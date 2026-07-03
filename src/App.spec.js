@@ -4,6 +4,21 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { GAME_CATALOG_ANCHOR_ID } from './common/catalogAnchor.js';
 import App from './App.vue';
 
+const HERO_HEADLINE = 'Online Casino';
+const HERO_SUPPORTING = 'Browse our game catalog';
+const HERO_CTA_LABEL = 'Browse games';
+
+const findHeroSection = wrapper => wrapper.find('section[aria-labelledby="hero-headline"]');
+const findHeroHeadline = wrapper => wrapper.find('#hero-headline');
+const findHeroSupporting = wrapper => findHeroSection(wrapper).find('p');
+const findBrowseGamesCta = wrapper => wrapper.find('button[type="button"]');
+const findCatalogSearch = wrapper => wrapper.find('input[placeholder="Search..."]');
+const findCategoryFilter = wrapper => wrapper.find('select');
+
+const expectNodePrecedes = (earlier, later) => {
+  expect(earlier.compareDocumentPosition(later) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+};
+
 describe('App', () => {
   const mountAppInDocument = options => {
     const wrapper = mount(App, options);
@@ -34,25 +49,28 @@ describe('App', () => {
     expect(wrapper.find('main').find('[data-test="games-stub"]').exists()).toBe(true);
   });
 
-  it('renders HeroBanner above the catalog list in the content slot', () => {
+  it('renders HeroBanner above catalog search and category filter controls', () => {
     const wrapper = mount(App, {
       global: {
         stubs: {
           AppNavigation: { template: '<nav />' },
-          GamesList: { template: '<div data-test="games-stub" />' },
         },
       },
     });
 
     const main = wrapper.find('main');
-    const children = main.element.children;
 
-    expect(main.find('.hero-headline').text()).toBe('Online Casino');
-    expect(main.find('.hero-supporting').text()).toBe('Browse our game catalog');
-    expect(main.find('.hero-cta').text()).toBe('Browse games');
-    expect(main.find('[data-test="games-stub"]').exists()).toBe(true);
-    expect(children[0].classList.contains('hero')).toBe(true);
-    expect(children[1].getAttribute('data-test')).toBe('games-stub');
+    expect(findHeroHeadline(main).text()).toBe(HERO_HEADLINE);
+    expect(findHeroSupporting(main).text()).toBe(HERO_SUPPORTING);
+    expect(findBrowseGamesCta(main).text()).toBe(HERO_CTA_LABEL);
+    expect(findCatalogSearch(main).exists()).toBe(true);
+    expect(findCategoryFilter(main).exists()).toBe(true);
+
+    const heroSection = findHeroSection(main);
+    const catalogAnchor = main.find(`#${GAME_CATALOG_ANCHOR_ID}`);
+    expect(heroSection.exists()).toBe(true);
+    expect(catalogAnchor.exists()).toBe(true);
+    expectNodePrecedes(heroSection.element, catalogAnchor.element);
   });
 
   it('exposes a catalog scroll anchor and scrolls to it when Browse games is activated', async () => {
@@ -71,7 +89,7 @@ describe('App', () => {
     const scrollIntoView = vi.fn();
     catalogAnchor.element.scrollIntoView = scrollIntoView;
 
-    await wrapper.find('.hero-cta').trigger('click');
+    await findBrowseGamesCta(wrapper).trigger('click');
 
     expect(scrollIntoView).toHaveBeenCalledWith({
       behavior: 'smooth',
@@ -98,7 +116,7 @@ describe('App', () => {
       const scrollIntoView = vi.fn();
       catalogAnchor.element.scrollIntoView = scrollIntoView;
 
-      await wrapper.find('.hero-cta').trigger('keydown', { key });
+      await findBrowseGamesCta(wrapper).trigger('keydown', { key });
 
       expect(scrollIntoView).toHaveBeenCalledWith({
         behavior: 'smooth',
@@ -130,10 +148,10 @@ describe('App', () => {
         },
       });
 
-      expect(wrapper.find('section.hero').exists()).toBe(true);
-      expect(wrapper.find('.hero-headline').text()).toBe('Online Casino');
-      expect(wrapper.find('.hero-supporting').text()).toBe('Browse our game catalog');
-      expect(wrapper.find('.hero-cta').text()).toBe('Browse games');
+      expect(findHeroSection(wrapper).exists()).toBe(true);
+      expect(findHeroHeadline(wrapper).text()).toBe(HERO_HEADLINE);
+      expect(findHeroSupporting(wrapper).text()).toBe(HERO_SUPPORTING);
+      expect(findBrowseGamesCta(wrapper).text()).toBe(HERO_CTA_LABEL);
       expect(wrapper.find('.grid-item').exists()).toBe(false);
     });
   });
