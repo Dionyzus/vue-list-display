@@ -1,22 +1,38 @@
 import { mount } from '@vue/test-utils';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { GAME_CATALOG_ANCHOR_ID } from './common/catalogAnchor.js';
 import App from './App.vue';
-
-const HERO_HEADLINE = 'Online Casino';
-const HERO_SUPPORTING = 'Browse our game catalog';
-const HERO_CTA_LABEL = 'Browse games';
+import {
+  HERO_CTA_LABEL,
+  HERO_HEADLINE,
+  HERO_SUPPORTING,
+} from './common/__fixtures__/heroCopy.js';
+import { GAME_CATALOG_ANCHOR_ID } from './common/catalogAnchor.js';
+import { catalogScroll } from './utils/scrollToCatalog.js';
 
 const findHeroSection = wrapper =>
   wrapper.find('section[aria-labelledby="hero-headline"]');
+
+const findSearchControl = wrapper =>
+  wrapper.find('input[aria-label="Search games"]');
 
 const precedesInDocument = (earlier, later) =>
   Boolean(
     earlier.compareDocumentPosition(later) & Node.DOCUMENT_POSITION_FOLLOWING,
   );
 
+// Replace game cards with a light stub so catalog-composition tests exercise the
+// hero and catalog controls without pulling in FontAwesome / v-lazy game-card chrome.
+const catalogCompositionStubs = {
+  AppNavigation: { template: '<nav aria-label="Main" />' },
+  GameItem: { template: '<div data-test="game-item-stub" />' },
+};
+
 describe('App', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   const mountAppInDocument = options => {
     const wrapper = mount(App, options);
     document.body.appendChild(wrapper.element);
@@ -49,33 +65,31 @@ describe('App', () => {
   it('renders HeroBanner above catalog search and category filter controls', () => {
     const wrapper = mount(App, {
       global: {
-        stubs: {
-          AppNavigation: { template: '<nav aria-label="Main" />' },
-        },
+        stubs: catalogCompositionStubs,
       },
     });
 
     const main = wrapper.find('main');
     const heroSection = findHeroSection(main);
-    const searchInput = main.find('input[placeholder="Search..."]');
+    const searchInput = findSearchControl(main);
     const categorySelect = main.find('select');
 
     expect(heroSection.exists()).toBe(true);
-    expect(main.get('h1').text()).toBe(HERO_HEADLINE);
-    expect(main.get('p').text()).toBe(HERO_SUPPORTING);
-    expect(main.get('button').text()).toBe(HERO_CTA_LABEL);
+    expect(heroSection.get('h1').text()).toBe(HERO_HEADLINE);
+    expect(heroSection.get('p').text()).toBe(HERO_SUPPORTING);
+    expect(heroSection.get('button').text()).toBe(HERO_CTA_LABEL);
     expect(searchInput.exists()).toBe(true);
     expect(categorySelect.exists()).toBe(true);
     expect(precedesInDocument(heroSection.element, searchInput.element)).toBe(true);
     expect(precedesInDocument(heroSection.element, categorySelect.element)).toBe(true);
   });
 
-  it('exposes a catalog scroll anchor and scrolls to it when Browse games is activated', async () => {
+  it('exposes a catalog scroll anchor and scrolls to it when Browse games fires', async () => {
+    vi.spyOn(catalogScroll, 'supportsSmoothScroll').mockReturnValue(true);
+
     const { wrapper, cleanup } = mountAppInDocument({
       global: {
-        stubs: {
-          AppNavigation: { template: '<nav />' },
-        },
+        stubs: catalogCompositionStubs,
       },
     });
 
@@ -86,7 +100,8 @@ describe('App', () => {
     const scrollIntoView = vi.fn();
     catalogAnchor.element.scrollIntoView = scrollIntoView;
 
-    await wrapper.get('button', { text: HERO_CTA_LABEL }).trigger('click');
+    const heroSection = findHeroSection(wrapper);
+    await heroSection.get('button').trigger('click');
 
     expect(scrollIntoView).toHaveBeenCalledWith({
       behavior: 'smooth',
@@ -99,11 +114,11 @@ describe('App', () => {
   it.each(['Enter', ' '])(
     'scrolls to the catalog anchor when Browse games is activated with %j',
     async key => {
+      vi.spyOn(catalogScroll, 'supportsSmoothScroll').mockReturnValue(true);
+
       const { wrapper, cleanup } = mountAppInDocument({
         global: {
-          stubs: {
-            AppNavigation: { template: '<nav />' },
-          },
+          stubs: catalogCompositionStubs,
         },
       });
 
@@ -113,7 +128,8 @@ describe('App', () => {
       const scrollIntoView = vi.fn();
       catalogAnchor.element.scrollIntoView = scrollIntoView;
 
-      await wrapper.get('button', { text: HERO_CTA_LABEL }).trigger('keydown', { key });
+      const heroSection = findHeroSection(wrapper);
+      await heroSection.get('button').trigger('keydown', { key });
 
       expect(scrollIntoView).toHaveBeenCalledWith({
         behavior: 'smooth',
@@ -130,13 +146,16 @@ describe('App', () => {
       vi.doUnmock('./components/Games/data.js');
     });
 
-    it('renders HeroBanner when the catalog list shows zero games', async () => {
+    it('renders HeroBanner when the catalog list holds zero games', async () => {
       vi.doMock('./components/Games/data.js', () => ({
         default: [],
       }));
       vi.resetModules();
 
       const { default: AppWithEmptyCatalog } = await import('./App.vue');
+      const { default: EmptyCatalogGameItem } = await import(
+        './components/Games/GameItem.vue'
+      );
       const wrapper = mount(AppWithEmptyCatalog, {
         global: {
           stubs: {
@@ -148,11 +167,11 @@ describe('App', () => {
       const heroSection = findHeroSection(wrapper);
 
       expect(heroSection.exists()).toBe(true);
-      expect(wrapper.get('h1').text()).toBe(HERO_HEADLINE);
-      expect(wrapper.get('p').text()).toBe(HERO_SUPPORTING);
-      expect(wrapper.get('button').text()).toBe(HERO_CTA_LABEL);
-      expect(wrapper.find('input[placeholder="Search..."]').exists()).toBe(true);
-      expect(wrapper.findAll('img[alt]').length).toBe(0);
+      expect(heroSection.get('h1').text()).toBe(HERO_HEADLINE);
+      expect(heroSection.get('p').text()).toBe(HERO_SUPPORTING);
+      expect(heroSection.get('button').text()).toBe(HERO_CTA_LABEL);
+      expect(findSearchControl(wrapper).exists()).toBe(true);
+      expect(wrapper.findAllComponents(EmptyCatalogGameItem).length).toBe(0);
     });
   });
 });

@@ -10,7 +10,13 @@ watch(searchQuery, (newQuery) => emit('onSearch', newQuery));
 
 <template>
   <div class="search-bar">
-    <input v-model="searchQuery" @input="handleSearch" placeholder="Search..." />
+    <input
+      v-model="searchQuery"
+      @input="handleSearch"
+      type="search"
+      aria-label="Search games"
+      placeholder="Search..."
+    />
   </div>
 </template>
 
