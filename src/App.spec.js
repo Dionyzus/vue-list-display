@@ -1,10 +1,38 @@
 import { mount } from '@vue/test-utils';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { GAME_CATALOG_ANCHOR_ID } from './common/catalogAnchor.js';
 import App from './App.vue';
+import {
+  HERO_CTA_LABEL,
+  HERO_HEADLINE,
+  HERO_SUPPORTING,
+} from './common/__fixtures__/heroCopy.js';
+import { GAME_CATALOG_ANCHOR_ID } from './common/catalogAnchor.js';
+import { catalogScroll } from './utils/scrollToCatalog.js';
+
+const findHeroSection = wrapper =>
+  wrapper.find('section[aria-labelledby="hero-headline"]');
+
+const findSearchControl = wrapper =>
+  wrapper.find('input[aria-label="Search games"]');
+
+const precedesInDocument = (earlier, later) =>
+  Boolean(
+    earlier.compareDocumentPosition(later) & Node.DOCUMENT_POSITION_FOLLOWING,
+  );
+
+// Replace game cards with a light stub so catalog-composition tests exercise the
+// hero and catalog controls without pulling in FontAwesome / v-lazy game-card chrome.
+const catalogCompositionStubs = {
+  AppNavigation: { template: '<nav aria-label="Main" />' },
+  GameItem: { template: '<div data-test="game-item-stub" />' },
+};
 
 describe('App', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   const mountAppInDocument = options => {
     const wrapper = mount(App, options);
     document.body.appendChild(wrapper.element);
@@ -34,33 +62,34 @@ describe('App', () => {
     expect(wrapper.find('main').find('[data-test="games-stub"]').exists()).toBe(true);
   });
 
-  it('renders HeroBanner above the catalog list in the content slot', () => {
+  it('renders HeroBanner above catalog search and category filter controls', () => {
     const wrapper = mount(App, {
       global: {
-        stubs: {
-          AppNavigation: { template: '<nav />' },
-          GamesList: { template: '<div data-test="games-stub" />' },
-        },
+        stubs: catalogCompositionStubs,
       },
     });
 
     const main = wrapper.find('main');
-    const children = main.element.children;
+    const heroSection = findHeroSection(main);
+    const searchInput = findSearchControl(main);
+    const categorySelect = main.find('select');
 
-    expect(main.find('.hero-headline').text()).toBe('Online Casino');
-    expect(main.find('.hero-supporting').text()).toBe('Browse our game catalog');
-    expect(main.find('.hero-cta').text()).toBe('Browse games');
-    expect(main.find('[data-test="games-stub"]').exists()).toBe(true);
-    expect(children[0].classList.contains('hero')).toBe(true);
-    expect(children[1].getAttribute('data-test')).toBe('games-stub');
+    expect(heroSection.exists()).toBe(true);
+    expect(heroSection.get('h1').text()).toBe(HERO_HEADLINE);
+    expect(heroSection.get('p').text()).toBe(HERO_SUPPORTING);
+    expect(heroSection.get('button').text()).toBe(HERO_CTA_LABEL);
+    expect(searchInput.exists()).toBe(true);
+    expect(categorySelect.exists()).toBe(true);
+    expect(precedesInDocument(heroSection.element, searchInput.element)).toBe(true);
+    expect(precedesInDocument(heroSection.element, categorySelect.element)).toBe(true);
   });
 
-  it('exposes a catalog scroll anchor and scrolls to it when Browse games is activated', async () => {
+  it('exposes a catalog scroll anchor and scrolls to it when Browse games fires', async () => {
+    vi.spyOn(catalogScroll, 'supportsSmoothScroll').mockReturnValue(true);
+
     const { wrapper, cleanup } = mountAppInDocument({
       global: {
-        stubs: {
-          AppNavigation: { template: '<nav />' },
-        },
+        stubs: catalogCompositionStubs,
       },
     });
 
@@ -71,7 +100,8 @@ describe('App', () => {
     const scrollIntoView = vi.fn();
     catalogAnchor.element.scrollIntoView = scrollIntoView;
 
-    await wrapper.find('.hero-cta').trigger('click');
+    const heroSection = findHeroSection(wrapper);
+    await heroSection.get('button').trigger('click');
 
     expect(scrollIntoView).toHaveBeenCalledWith({
       behavior: 'smooth',
@@ -84,11 +114,11 @@ describe('App', () => {
   it.each(['Enter', ' '])(
     'scrolls to the catalog anchor when Browse games is activated with %j',
     async key => {
+      vi.spyOn(catalogScroll, 'supportsSmoothScroll').mockReturnValue(true);
+
       const { wrapper, cleanup } = mountAppInDocument({
         global: {
-          stubs: {
-            AppNavigation: { template: '<nav />' },
-          },
+          stubs: catalogCompositionStubs,
         },
       });
 
@@ -98,7 +128,8 @@ describe('App', () => {
       const scrollIntoView = vi.fn();
       catalogAnchor.element.scrollIntoView = scrollIntoView;
 
-      await wrapper.find('.hero-cta').trigger('keydown', { key });
+      const heroSection = findHeroSection(wrapper);
+      await heroSection.get('button').trigger('keydown', { key });
 
       expect(scrollIntoView).toHaveBeenCalledWith({
         behavior: 'smooth',
@@ -115,13 +146,16 @@ describe('App', () => {
       vi.doUnmock('./components/Games/data.js');
     });
 
-    it('renders HeroBanner when the catalog list shows zero games', async () => {
+    it('renders HeroBanner when the catalog list holds zero games', async () => {
       vi.doMock('./components/Games/data.js', () => ({
         default: [],
       }));
       vi.resetModules();
 
       const { default: AppWithEmptyCatalog } = await import('./App.vue');
+      const { default: EmptyCatalogGameItem } = await import(
+        './components/Games/GameItem.vue'
+      );
       const wrapper = mount(AppWithEmptyCatalog, {
         global: {
           stubs: {
@@ -130,11 +164,14 @@ describe('App', () => {
         },
       });
 
-      expect(wrapper.find('section.hero').exists()).toBe(true);
-      expect(wrapper.find('.hero-headline').text()).toBe('Online Casino');
-      expect(wrapper.find('.hero-supporting').text()).toBe('Browse our game catalog');
-      expect(wrapper.find('.hero-cta').text()).toBe('Browse games');
-      expect(wrapper.find('.grid-item').exists()).toBe(false);
+      const heroSection = findHeroSection(wrapper);
+
+      expect(heroSection.exists()).toBe(true);
+      expect(heroSection.get('h1').text()).toBe(HERO_HEADLINE);
+      expect(heroSection.get('p').text()).toBe(HERO_SUPPORTING);
+      expect(heroSection.get('button').text()).toBe(HERO_CTA_LABEL);
+      expect(findSearchControl(wrapper).exists()).toBe(true);
+      expect(wrapper.findAllComponents(EmptyCatalogGameItem).length).toBe(0);
     });
   });
 });
