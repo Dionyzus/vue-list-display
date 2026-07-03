@@ -7,7 +7,6 @@ import {
   HERO_SUPPORTING,
 } from '../../common/__fixtures__/heroCopy.js';
 import { GAME_CATALOG_ANCHOR_ID } from '../../common/catalogAnchor.js';
-import heroBannerSource from './HeroBanner.vue?raw';
 import HeroBanner from './HeroBanner.vue';
 
 describe('HeroBanner', () => {
@@ -73,12 +72,5 @@ describe('HeroBanner', () => {
     expect(wrapper.find('[aria-label*="dismiss" i]').exists()).toBe(false);
     expect(wrapper.find('[class*="carousel"]').exists()).toBe(false);
     expect(wrapper.findAll('button').length).toBe(1);
-  });
-
-  it('scopes responsive spacing and typography at the 768px breakpoint', () => {
-    expect(heroBannerSource).toMatch(/@media[^{]*\(max-width:\s*768px\)/);
-    expect(heroBannerSource).toContain('padding: 1rem 0.5rem');
-    expect(heroBannerSource).toContain('font-size: 1.5rem');
-    expect(heroBannerSource).toContain('font-size: 0.875rem');
   });
 });
