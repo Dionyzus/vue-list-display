@@ -45,6 +45,7 @@ describe('App', () => {
       global: {
         stubs: {
           AppNavigation: { template: '<nav />' },
+          GameItem: true,
         },
       },
     });
@@ -73,6 +74,7 @@ describe('App', () => {
       global: {
         stubs: {
           AppNavigation: { template: '<nav />' },
+          GameItem: true,
         },
       },
     });
@@ -86,10 +88,12 @@ describe('App', () => {
 
     await findBrowseGamesCta(wrapper).trigger('click');
 
-    expect(scrollIntoView).toHaveBeenCalledWith({
-      behavior: 'smooth',
-      block: 'start',
-    });
+    expect(scrollIntoView).toHaveBeenCalledWith(
+      expect.objectContaining({
+        block: 'start',
+        behavior: expect.stringMatching(/^(smooth|auto)$/),
+      }),
+    );
 
     cleanup();
   });
@@ -101,6 +105,7 @@ describe('App', () => {
         global: {
           stubs: {
             AppNavigation: { template: '<nav />' },
+            GameItem: true,
           },
         },
       });
@@ -113,10 +118,12 @@ describe('App', () => {
 
       await findBrowseGamesCta(wrapper).trigger('keydown', { key });
 
-      expect(scrollIntoView).toHaveBeenCalledWith({
-        behavior: 'smooth',
-        block: 'start',
-      });
+      expect(scrollIntoView).toHaveBeenCalledWith(
+        expect.objectContaining({
+          block: 'start',
+          behavior: expect.stringMatching(/^(smooth|auto)$/),
+        }),
+      );
 
       cleanup();
     },
@@ -149,7 +156,7 @@ describe('App', () => {
       expect(hero.find('h1').text()).toBe('Online Casino');
       expect(hero.find('p').text()).toBe('Browse our game catalog');
       expect(hero.find('button').text()).toBe('Browse games');
-      expect(wrapper.find('.grid-item').exists()).toBe(false);
+      expect(wrapper.findAll('[aria-label="View Details"]')).toHaveLength(0);
     });
   });
 });

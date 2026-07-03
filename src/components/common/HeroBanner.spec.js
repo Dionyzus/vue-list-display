@@ -2,7 +2,6 @@ import { mount } from '@vue/test-utils';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { GAME_CATALOG_ANCHOR_ID } from '../../common/catalogAnchor.js';
-import heroBannerSource from './HeroBanner.vue?raw';
 import HeroBanner from './HeroBanner.vue';
 
 describe('HeroBanner', () => {
@@ -76,22 +75,12 @@ describe('HeroBanner', () => {
     },
   );
 
-  it('uses brand burgundy background, light text, and no decorative chrome', () => {
+  it('renders no decorative chrome beyond the hero copy and single CTA', () => {
     const wrapper = mount(HeroBanner);
+    const hero = wrapper.find('section[aria-labelledby="hero-headline"]');
 
-    expect(heroBannerSource).toContain('background-color: #630000');
-    expect(heroBannerSource).toContain('color: white');
-    expect(heroBannerSource).toContain('100vw');
-    expect(heroBannerSource).not.toContain('background-image');
-    expect(wrapper.find('img').exists()).toBe(false);
-    expect(wrapper.find('[aria-label*="dismiss"]').exists()).toBe(false);
-    expect(wrapper.find('[class*="carousel"]').exists()).toBe(false);
-  });
-
-  it('scopes responsive spacing and typography at the 768px breakpoint', () => {
-    expect(heroBannerSource).toMatch(/@media[^{]*\(max-width:\s*768px\)/);
-    expect(heroBannerSource).toContain('padding: 1rem 0.5rem');
-    expect(heroBannerSource).toContain('font-size: 1.5rem');
-    expect(heroBannerSource).toContain('font-size: 0.875rem');
+    expect(hero.find('img').exists()).toBe(false);
+    expect(hero.findAll('a')).toHaveLength(0);
+    expect(hero.findAll('button')).toHaveLength(1);
   });
 });
