@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import heroBannerSource from './HeroBanner.vue?raw';
 import HeroBanner from './HeroBanner.vue';
@@ -13,7 +13,7 @@ describe('HeroBanner', () => {
     expect(wrapper.find('.hero-cta').text()).toBe('Browse games');
   });
 
-  it('renders a focusable CTA button with no click handler in this slice', () => {
+  it('renders a focusable CTA button', () => {
     const wrapper = mount(HeroBanner);
     const cta = wrapper.find('button.hero-cta').element;
 
@@ -23,6 +23,43 @@ describe('HeroBanner', () => {
     expect(cta.tabIndex).toBe(0);
     expect(cta.getAttribute('tabindex')).not.toBe('-1');
     expect(cta.getAttribute('aria-disabled')).not.toBe('true');
+  });
+
+  it('scrolls to the catalog filter anchor when the CTA is activated', () => {
+    const catalogAnchor = document.createElement('div');
+    catalogAnchor.id = 'game-catalog';
+    catalogAnchor.scrollIntoView = vi.fn();
+    document.body.appendChild(catalogAnchor);
+
+    const wrapper = mount(HeroBanner);
+    wrapper.find('button.hero-cta').trigger('click');
+
+    expect(catalogAnchor.scrollIntoView).toHaveBeenCalledWith({
+      behavior: 'smooth',
+      block: 'start',
+    });
+
+    catalogAnchor.remove();
+  });
+
+  it('uses instant scroll when smooth scrolling is not supported', () => {
+    const catalogAnchor = document.createElement('div');
+    catalogAnchor.id = 'game-catalog';
+    catalogAnchor.scrollIntoView = vi.fn();
+    document.body.appendChild(catalogAnchor);
+
+    vi.spyOn(document.documentElement, 'style', 'get').mockReturnValue({});
+
+    const wrapper = mount(HeroBanner);
+    wrapper.find('button.hero-cta').trigger('click');
+
+    expect(catalogAnchor.scrollIntoView).toHaveBeenCalledWith({
+      behavior: 'auto',
+      block: 'start',
+    });
+
+    catalogAnchor.remove();
+    vi.restoreAllMocks();
   });
 
   it('uses brand burgundy background, light text, and no decorative chrome', () => {

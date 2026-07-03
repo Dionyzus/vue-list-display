@@ -39,6 +39,34 @@ describe('App', () => {
     expect(children[1].getAttribute('data-test')).toBe('games-stub');
   });
 
+  it('exposes a catalog scroll anchor and scrolls to it when Browse games is activated', async () => {
+    const wrapper = mount(App, {
+      global: {
+        stubs: {
+          AppNavigation: { template: '<nav />' },
+        },
+      },
+    });
+
+    const catalogAnchor = wrapper.find('#game-catalog');
+    expect(catalogAnchor.exists()).toBe(true);
+
+    const scrollIntoView = vi.fn();
+    catalogAnchor.element.scrollIntoView = scrollIntoView;
+    vi.spyOn(document, 'getElementById').mockImplementation(id =>
+      id === 'game-catalog' ? catalogAnchor.element : null,
+    );
+
+    await wrapper.find('.hero-cta').trigger('click');
+
+    expect(scrollIntoView).toHaveBeenCalledWith({
+      behavior: 'smooth',
+      block: 'start',
+    });
+
+    vi.restoreAllMocks();
+  });
+
   describe('with empty catalog data', () => {
     afterEach(() => {
       vi.resetModules();

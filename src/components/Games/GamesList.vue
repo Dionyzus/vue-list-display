@@ -50,7 +50,7 @@ const handlePageChange = pageNumber => {
 
 <template>
   <div class="game-grid">
-    <div class="filter-section">
+    <div id="game-catalog" class="filter-section">
       <div class="filter-column">
         <AppSearchBar @onSearch="searchGames" />
       </div>
