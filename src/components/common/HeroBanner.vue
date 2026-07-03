@@ -1,8 +1,20 @@
+<script setup>
+import { scrollToCatalog } from '../../utils/scrollToCatalog.js';
+</script>
+
 <template>
   <section class="hero" aria-labelledby="hero-headline">
     <h1 id="hero-headline" class="hero-headline">Online Casino</h1>
     <p class="hero-supporting">Browse our game catalog</p>
-    <button type="button" class="hero-cta">Browse games</button>
+    <button
+      type="button"
+      class="hero-cta"
+      @click="scrollToCatalog"
+      @keydown.enter.prevent="scrollToCatalog"
+      @keydown.space.prevent="scrollToCatalog"
+    >
+      Browse games
+    </button>
   </section>
 </template>
 

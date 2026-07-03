@@ -1,6 +1,7 @@
 <script setup>
 import { computed, ref } from 'vue';
 
+import { GAME_CATALOG_ANCHOR_ID } from '../../common/catalogAnchor.js';
 import { CATEGORIES } from '../../common/constants';
 import AppFilter from '../common/AppFilter.vue';
 import AppPagination from '../common/AppPagination.vue';
@@ -50,7 +51,7 @@ const handlePageChange = pageNumber => {
 
 <template>
   <div class="game-grid">
-    <div class="filter-section">
+    <div :id="GAME_CATALOG_ANCHOR_ID" class="filter-section">
       <div class="filter-column">
         <AppSearchBar @onSearch="searchGames" />
       </div>
@@ -76,6 +77,7 @@ const handlePageChange = pageNumber => {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  scroll-margin-top: var(--app-header-scroll-offset, 4rem);
 }
 
 .filter-column {

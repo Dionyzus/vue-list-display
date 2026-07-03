@@ -1,10 +1,16 @@
 import { mount } from '@vue/test-utils';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
+import * as scrollModule from '../../utils/scrollToCatalog.js';
 import heroBannerSource from './HeroBanner.vue?raw';
 import HeroBanner from './HeroBanner.vue';
 
 describe('HeroBanner', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+    document.body.innerHTML = '';
+  });
+
   it('renders static hero copy and CTA', () => {
     const wrapper = mount(HeroBanner);
 
@@ -13,7 +19,7 @@ describe('HeroBanner', () => {
     expect(wrapper.find('.hero-cta').text()).toBe('Browse games');
   });
 
-  it('renders a focusable CTA button with no click handler in this slice', () => {
+  it('renders a focusable CTA button', () => {
     const wrapper = mount(HeroBanner);
     const cta = wrapper.find('button.hero-cta').element;
 
@@ -23,6 +29,26 @@ describe('HeroBanner', () => {
     expect(cta.tabIndex).toBe(0);
     expect(cta.getAttribute('tabindex')).not.toBe('-1');
     expect(cta.getAttribute('aria-disabled')).not.toBe('true');
+  });
+
+  it('scrolls to the catalog filter anchor when the CTA is clicked', async () => {
+    const scrollSpy = vi.spyOn(scrollModule, 'scrollToCatalog');
+
+    const wrapper = mount(HeroBanner);
+    await wrapper.find('button.hero-cta').trigger('click');
+
+    expect(scrollSpy).toHaveBeenCalledOnce();
+  });
+
+  it.each(['Enter', ' '])('scrolls to the catalog when the CTA is activated with %j', async key => {
+    const scrollSpy = vi.spyOn(scrollModule, 'scrollToCatalog');
+
+    const wrapper = mount(HeroBanner);
+    const cta = wrapper.find('button.hero-cta');
+
+    await cta.trigger('keydown', { key });
+
+    expect(scrollSpy).toHaveBeenCalledOnce();
   });
 
   it('uses brand burgundy background, light text, and no decorative chrome', () => {
