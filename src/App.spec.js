@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import App from './App.vue';
 
@@ -32,8 +32,39 @@ describe('App', () => {
     const children = main.element.children;
 
     expect(main.find('.hero-headline').text()).toBe('Online Casino');
+    expect(main.find('.hero-supporting').text()).toBe('Browse our game catalog');
+    expect(main.find('.hero-cta').text()).toBe('Browse games');
     expect(main.find('[data-test="games-stub"]').exists()).toBe(true);
     expect(children[0].classList.contains('hero')).toBe(true);
     expect(children[1].getAttribute('data-test')).toBe('games-stub');
+  });
+
+  describe('with empty catalog data', () => {
+    afterEach(() => {
+      vi.resetModules();
+      vi.doUnmock('./components/Games/data.js');
+    });
+
+    it('renders HeroBanner when the catalog list shows zero games', async () => {
+      vi.doMock('./components/Games/data.js', () => ({
+        default: [],
+      }));
+      vi.resetModules();
+
+      const { default: AppWithEmptyCatalog } = await import('./App.vue');
+      const wrapper = mount(AppWithEmptyCatalog, {
+        global: {
+          stubs: {
+            AppNavigation: { template: '<nav />' },
+          },
+        },
+      });
+
+      expect(wrapper.find('section.hero').exists()).toBe(true);
+      expect(wrapper.find('.hero-headline').text()).toBe('Online Casino');
+      expect(wrapper.find('.hero-supporting').text()).toBe('Browse our game catalog');
+      expect(wrapper.find('.hero-cta').text()).toBe('Browse games');
+      expect(wrapper.find('.grid-item').exists()).toBe(false);
+    });
   });
 });

@@ -16,8 +16,11 @@
   align-items: center;
   gap: 0.75rem;
   padding: 2rem 1rem;
-  margin: -1rem -1rem 1rem -1rem;
-  width: calc(100% + 2rem);
+  width: 100vw;
+  max-width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  margin-bottom: 1rem;
 }
 
 .hero-headline {
@@ -51,8 +54,7 @@
 @media screen and (max-width: 768px) {
   .hero {
     padding: 1rem 0.5rem;
-    margin: -0.5rem -0.5rem 0.5rem -0.5rem;
-    width: calc(100% + 1rem);
+    margin-bottom: 0.5rem;
     gap: 0.5rem;
   }
 
