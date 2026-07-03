@@ -3,6 +3,13 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { GAME_CATALOG_ANCHOR_ID } from './common/catalogAnchor.js';
 import App from './App.vue';
+import GameItem from './components/Games/GameItem.vue';
+
+const DOCUMENT_POSITION_FOLLOWING = Node.DOCUMENT_POSITION_FOLLOWING;
+
+function expectElementFollows(reference, target) {
+  expect(reference.compareDocumentPosition(target) & DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+}
 
 describe('App', () => {
   const mountAppInDocument = options => {
@@ -46,24 +53,30 @@ describe('App', () => {
 
     const main = wrapper.find('main');
     const hero = main.find('section[aria-labelledby="hero-headline"]');
-    const searchInput = main.find('input[placeholder="Search..."]');
-    const categoryFilter = main.find('select');
+    const catalogFilters = main.find(`#${GAME_CATALOG_ANCHOR_ID}`);
+    const searchInput = catalogFilters.get('[aria-label="Search games"]');
+    const categoryLabel = catalogFilters.get('label');
+    const categoryFilter = catalogFilters.get('select');
 
     expect(hero.exists()).toBe(true);
-    expect(searchInput.exists()).toBe(true);
-    expect(categoryFilter.exists()).toBe(true);
+    expect(catalogFilters.exists()).toBe(true);
+    expect(categoryLabel.text()).toMatch(/^Category/);
 
     expect(hero.find('#hero-headline').text()).toBe('Online Casino');
     expect(hero.get('p').text()).toBe('Browse our game catalog');
     expect(hero.get('button').text()).toBe('Browse games');
 
     const heroIndex = [...main.element.children].indexOf(hero.element);
-    const catalogRootIndex = [...main.element.children].indexOf(
-      main.find(`#${GAME_CATALOG_ANCHOR_ID}`).element.closest('.game-grid'),
-    );
+    let catalogRoot = catalogFilters.element;
+    while (catalogRoot.parentElement !== main.element) {
+      catalogRoot = catalogRoot.parentElement;
+    }
+    const catalogRootIndex = [...main.element.children].indexOf(catalogRoot);
 
     expect(heroIndex).toBeGreaterThanOrEqual(0);
     expect(catalogRootIndex).toBeGreaterThan(heroIndex);
+    expectElementFollows(hero.element, searchInput.element);
+    expectElementFollows(hero.element, categoryFilter.element);
   });
 
   it('exposes a catalog scroll anchor and scrolls to it when Browse games is activated', async () => {
@@ -151,7 +164,7 @@ describe('App', () => {
       expect(hero.find('#hero-headline').text()).toBe('Online Casino');
       expect(hero.get('p').text()).toBe('Browse our game catalog');
       expect(hero.get('button').text()).toBe('Browse games');
-      expect(wrapper.find('.grid-item').exists()).toBe(false);
+      expect(wrapper.findAllComponents(GameItem)).toHaveLength(0);
     });
   });
 });
