@@ -34,25 +34,36 @@ describe('App', () => {
     expect(wrapper.find('main').find('[data-test="games-stub"]').exists()).toBe(true);
   });
 
-  it('renders HeroBanner above the catalog list in the content slot', () => {
+  it('renders the hero above catalog search and category filter controls', () => {
     const wrapper = mount(App, {
       global: {
         stubs: {
           AppNavigation: { template: '<nav />' },
-          GamesList: { template: '<div data-test="games-stub" />' },
+          GameItem: { template: '<div data-test="game-item-stub" />' },
         },
       },
     });
 
     const main = wrapper.find('main');
-    const children = main.element.children;
+    const hero = main.find('section[aria-labelledby="hero-headline"]');
+    const searchInput = main.find('input[placeholder="Search..."]');
+    const categoryFilter = main.find('select');
 
-    expect(main.find('.hero-headline').text()).toBe('Online Casino');
-    expect(main.find('.hero-supporting').text()).toBe('Browse our game catalog');
-    expect(main.find('.hero-cta').text()).toBe('Browse games');
-    expect(main.find('[data-test="games-stub"]').exists()).toBe(true);
-    expect(children[0].classList.contains('hero')).toBe(true);
-    expect(children[1].getAttribute('data-test')).toBe('games-stub');
+    expect(hero.exists()).toBe(true);
+    expect(searchInput.exists()).toBe(true);
+    expect(categoryFilter.exists()).toBe(true);
+
+    expect(hero.find('#hero-headline').text()).toBe('Online Casino');
+    expect(hero.get('p').text()).toBe('Browse our game catalog');
+    expect(hero.get('button').text()).toBe('Browse games');
+
+    const heroIndex = [...main.element.children].indexOf(hero.element);
+    const catalogRootIndex = [...main.element.children].indexOf(
+      main.find(`#${GAME_CATALOG_ANCHOR_ID}`).element.closest('.game-grid'),
+    );
+
+    expect(heroIndex).toBeGreaterThanOrEqual(0);
+    expect(catalogRootIndex).toBeGreaterThan(heroIndex);
   });
 
   it('exposes a catalog scroll anchor and scrolls to it when Browse games is activated', async () => {
@@ -60,6 +71,7 @@ describe('App', () => {
       global: {
         stubs: {
           AppNavigation: { template: '<nav />' },
+          GameItem: { template: '<div data-test="game-item-stub" />' },
         },
       },
     });
@@ -71,7 +83,7 @@ describe('App', () => {
     const scrollIntoView = vi.fn();
     catalogAnchor.element.scrollIntoView = scrollIntoView;
 
-    await wrapper.find('.hero-cta').trigger('click');
+    await wrapper.find('section[aria-labelledby="hero-headline"] button').trigger('click');
 
     expect(scrollIntoView).toHaveBeenCalledWith({
       behavior: 'smooth',
@@ -88,6 +100,7 @@ describe('App', () => {
         global: {
           stubs: {
             AppNavigation: { template: '<nav />' },
+            GameItem: { template: '<div data-test="game-item-stub" />' },
           },
         },
       });
@@ -98,7 +111,9 @@ describe('App', () => {
       const scrollIntoView = vi.fn();
       catalogAnchor.element.scrollIntoView = scrollIntoView;
 
-      await wrapper.find('.hero-cta').trigger('keydown', { key });
+      await wrapper.find('section[aria-labelledby="hero-headline"] button').trigger('keydown', {
+        key,
+      });
 
       expect(scrollIntoView).toHaveBeenCalledWith({
         behavior: 'smooth',
@@ -115,7 +130,7 @@ describe('App', () => {
       vi.doUnmock('./components/Games/data.js');
     });
 
-    it('renders HeroBanner when the catalog list shows zero games', async () => {
+    it('renders the hero when the catalog has zero games', async () => {
       vi.doMock('./components/Games/data.js', () => ({
         default: [],
       }));
@@ -130,10 +145,12 @@ describe('App', () => {
         },
       });
 
-      expect(wrapper.find('section.hero').exists()).toBe(true);
-      expect(wrapper.find('.hero-headline').text()).toBe('Online Casino');
-      expect(wrapper.find('.hero-supporting').text()).toBe('Browse our game catalog');
-      expect(wrapper.find('.hero-cta').text()).toBe('Browse games');
+      const hero = wrapper.find('section[aria-labelledby="hero-headline"]');
+
+      expect(hero.exists()).toBe(true);
+      expect(hero.find('#hero-headline').text()).toBe('Online Casino');
+      expect(hero.get('p').text()).toBe('Browse our game catalog');
+      expect(hero.get('button').text()).toBe('Browse games');
       expect(wrapper.find('.grid-item').exists()).toBe(false);
     });
   });
