@@ -1,9 +1,25 @@
 import { mount } from '@vue/test-utils';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
+import { GAME_CATALOG_ANCHOR_ID } from './common/catalogAnchor.js';
 import App from './App.vue';
 
 describe('App', () => {
+  const mountAppInDocument = options => {
+    const wrapper = mount(App, options);
+    document.body.appendChild(wrapper.element);
+
+    return {
+      wrapper,
+      cleanup: () => {
+        wrapper.unmount();
+        if (wrapper.element.parentNode) {
+          wrapper.element.parentNode.removeChild(wrapper.element);
+        }
+      },
+    };
+  };
+
   it('mounts the app shell with header and content regions', () => {
     const wrapper = mount(App, {
       global: {
@@ -40,7 +56,7 @@ describe('App', () => {
   });
 
   it('exposes a catalog scroll anchor and scrolls to it when Browse games is activated', async () => {
-    const wrapper = mount(App, {
+    const { wrapper, cleanup } = mountAppInDocument({
       global: {
         stubs: {
           AppNavigation: { template: '<nav />' },
@@ -48,14 +64,12 @@ describe('App', () => {
       },
     });
 
-    const catalogAnchor = wrapper.find('#game-catalog');
+    const catalogAnchor = wrapper.find(`#${GAME_CATALOG_ANCHOR_ID}`);
     expect(catalogAnchor.exists()).toBe(true);
+    expect(document.getElementById(GAME_CATALOG_ANCHOR_ID)).toBe(catalogAnchor.element);
 
     const scrollIntoView = vi.fn();
     catalogAnchor.element.scrollIntoView = scrollIntoView;
-    vi.spyOn(document, 'getElementById').mockImplementation(id =>
-      id === 'game-catalog' ? catalogAnchor.element : null,
-    );
 
     await wrapper.find('.hero-cta').trigger('click');
 
@@ -64,8 +78,36 @@ describe('App', () => {
       block: 'start',
     });
 
-    vi.restoreAllMocks();
+    cleanup();
   });
+
+  it.each(['Enter', ' '])(
+    'scrolls to the catalog anchor when Browse games is activated with %j',
+    async key => {
+      const { wrapper, cleanup } = mountAppInDocument({
+        global: {
+          stubs: {
+            AppNavigation: { template: '<nav />' },
+          },
+        },
+      });
+
+      const catalogAnchor = wrapper.find(`#${GAME_CATALOG_ANCHOR_ID}`);
+      expect(document.getElementById(GAME_CATALOG_ANCHOR_ID)).toBe(catalogAnchor.element);
+
+      const scrollIntoView = vi.fn();
+      catalogAnchor.element.scrollIntoView = scrollIntoView;
+
+      await wrapper.find('.hero-cta').trigger('keydown', { key });
+
+      expect(scrollIntoView).toHaveBeenCalledWith({
+        behavior: 'smooth',
+        block: 'start',
+      });
+
+      cleanup();
+    },
+  );
 
   describe('with empty catalog data', () => {
     afterEach(() => {

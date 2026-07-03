@@ -1,10 +1,16 @@
 import { mount } from '@vue/test-utils';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
+import * as scrollModule from '../../utils/scrollToCatalog.js';
 import heroBannerSource from './HeroBanner.vue?raw';
 import HeroBanner from './HeroBanner.vue';
 
 describe('HeroBanner', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+    document.body.innerHTML = '';
+  });
+
   it('renders static hero copy and CTA', () => {
     const wrapper = mount(HeroBanner);
 
@@ -25,41 +31,24 @@ describe('HeroBanner', () => {
     expect(cta.getAttribute('aria-disabled')).not.toBe('true');
   });
 
-  it('scrolls to the catalog filter anchor when the CTA is activated', () => {
-    const catalogAnchor = document.createElement('div');
-    catalogAnchor.id = 'game-catalog';
-    catalogAnchor.scrollIntoView = vi.fn();
-    document.body.appendChild(catalogAnchor);
+  it('scrolls to the catalog filter anchor when the CTA is clicked', async () => {
+    const scrollSpy = vi.spyOn(scrollModule, 'scrollToCatalog');
 
     const wrapper = mount(HeroBanner);
-    wrapper.find('button.hero-cta').trigger('click');
+    await wrapper.find('button.hero-cta').trigger('click');
 
-    expect(catalogAnchor.scrollIntoView).toHaveBeenCalledWith({
-      behavior: 'smooth',
-      block: 'start',
-    });
-
-    catalogAnchor.remove();
+    expect(scrollSpy).toHaveBeenCalledOnce();
   });
 
-  it('uses instant scroll when smooth scrolling is not supported', () => {
-    const catalogAnchor = document.createElement('div');
-    catalogAnchor.id = 'game-catalog';
-    catalogAnchor.scrollIntoView = vi.fn();
-    document.body.appendChild(catalogAnchor);
-
-    vi.spyOn(document.documentElement, 'style', 'get').mockReturnValue({});
+  it.each(['Enter', ' '])('scrolls to the catalog when the CTA is activated with %j', async key => {
+    const scrollSpy = vi.spyOn(scrollModule, 'scrollToCatalog');
 
     const wrapper = mount(HeroBanner);
-    wrapper.find('button.hero-cta').trigger('click');
+    const cta = wrapper.find('button.hero-cta');
 
-    expect(catalogAnchor.scrollIntoView).toHaveBeenCalledWith({
-      behavior: 'auto',
-      block: 'start',
-    });
+    await cta.trigger('keydown', { key });
 
-    catalogAnchor.remove();
-    vi.restoreAllMocks();
+    expect(scrollSpy).toHaveBeenCalledOnce();
   });
 
   it('uses brand burgundy background, light text, and no decorative chrome', () => {
