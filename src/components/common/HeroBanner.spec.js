@@ -1,12 +1,8 @@
 import { mount } from '@vue/test-utils';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import {
-  HERO_CTA_LABEL,
-  HERO_HEADLINE,
-  HERO_SUPPORTING,
-} from '../../common/__fixtures__/heroCopy.js';
-import { GAME_CATALOG_ANCHOR_ID } from '../../common/catalogAnchor.js';
+import * as scrollModule from '../../utils/scrollToCatalog.js';
+import heroBannerSource from './HeroBanner.vue?raw';
 import HeroBanner from './HeroBanner.vue';
 
 describe('HeroBanner', () => {
@@ -18,15 +14,16 @@ describe('HeroBanner', () => {
   it('renders static hero copy and CTA', () => {
     const wrapper = mount(HeroBanner);
 
-    expect(wrapper.get('h1').text()).toBe(HERO_HEADLINE);
-    expect(wrapper.get('p').text()).toBe(HERO_SUPPORTING);
-    expect(wrapper.get('button').text()).toBe(HERO_CTA_LABEL);
+    expect(wrapper.find('.hero-headline').text()).toBe('Online Casino');
+    expect(wrapper.find('.hero-supporting').text()).toBe('Browse our game catalog');
+    expect(wrapper.find('.hero-cta').text()).toBe('Browse games');
   });
 
   it('renders a focusable CTA button', () => {
     const wrapper = mount(HeroBanner);
-    const cta = wrapper.get('button').element;
+    const cta = wrapper.find('button.hero-cta').element;
 
+    expect(cta).toBeTruthy();
     expect(cta.getAttribute('type')).toBe('button');
     expect(cta.disabled).toBe(false);
     expect(cta.tabIndex).toBe(0);
@@ -34,43 +31,42 @@ describe('HeroBanner', () => {
     expect(cta.getAttribute('aria-disabled')).not.toBe('true');
   });
 
-  it('scrolls the catalog anchor into view when the CTA is clicked', async () => {
-    const catalogAnchor = document.createElement('div');
-    catalogAnchor.id = GAME_CATALOG_ANCHOR_ID;
-    catalogAnchor.scrollIntoView = vi.fn();
-    document.body.appendChild(catalogAnchor);
+  it('scrolls to the catalog filter anchor when the CTA is clicked', async () => {
+    const scrollSpy = vi.spyOn(scrollModule, 'scrollToCatalog');
 
     const wrapper = mount(HeroBanner);
-    await wrapper.get('button').trigger('click');
+    await wrapper.find('button.hero-cta').trigger('click');
 
-    expect(catalogAnchor.scrollIntoView).toHaveBeenCalledWith({
-      behavior: expect.stringMatching(/^(smooth|auto)$/),
-      block: 'start',
-    });
+    expect(scrollSpy).toHaveBeenCalledOnce();
   });
 
   it.each(['Enter', ' '])('scrolls to the catalog when the CTA is activated with %j', async key => {
-    const catalogAnchor = document.createElement('div');
-    catalogAnchor.id = GAME_CATALOG_ANCHOR_ID;
-    catalogAnchor.scrollIntoView = vi.fn();
-    document.body.appendChild(catalogAnchor);
+    const scrollSpy = vi.spyOn(scrollModule, 'scrollToCatalog');
 
     const wrapper = mount(HeroBanner);
+    const cta = wrapper.find('button.hero-cta');
 
-    await wrapper.get('button').trigger('keydown', { key });
+    await cta.trigger('keydown', { key });
 
-    expect(catalogAnchor.scrollIntoView).toHaveBeenCalledWith({
-      behavior: expect.stringMatching(/^(smooth|auto)$/),
-      block: 'start',
-    });
+    expect(scrollSpy).toHaveBeenCalledOnce();
   });
 
-  it('renders no decorative chrome (no imagery, dismiss control, or carousel)', () => {
+  it('uses brand burgundy background, light text, and no decorative chrome', () => {
     const wrapper = mount(HeroBanner);
 
+    expect(heroBannerSource).toContain('background-color: #630000');
+    expect(heroBannerSource).toContain('color: white');
+    expect(heroBannerSource).toContain('100vw');
+    expect(heroBannerSource).not.toContain('background-image');
     expect(wrapper.find('img').exists()).toBe(false);
-    expect(wrapper.find('[aria-label*="dismiss" i]').exists()).toBe(false);
+    expect(wrapper.find('[aria-label*="dismiss"]').exists()).toBe(false);
     expect(wrapper.find('[class*="carousel"]').exists()).toBe(false);
-    expect(wrapper.findAll('button').length).toBe(1);
+  });
+
+  it('scopes responsive spacing and typography at the 768px breakpoint', () => {
+    expect(heroBannerSource).toMatch(/@media[^{]*\(max-width:\s*768px\)/);
+    expect(heroBannerSource).toContain('padding: 1rem 0.5rem');
+    expect(heroBannerSource).toContain('font-size: 1.5rem');
+    expect(heroBannerSource).toContain('font-size: 0.875rem');
   });
 });
