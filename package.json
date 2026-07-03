@@ -2,6 +2,9 @@
   "name": "vue-list-display",
   "version": "0.0.0",
   "private": true,
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -29,7 +32,7 @@
     "autoprefixer": "^10.4.14",
     "eslint": "^8.45.0",
     "eslint-plugin-vue": "^9.15.1",
-    "jsdom": "^29.1.1",
+    "jsdom": "^24.1.0",
     "postcss": "^8.4.27",
     "prettier": "^3.0.0",
     "tailwindcss": "^3.3.3",
