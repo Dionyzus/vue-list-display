@@ -1,12 +1,34 @@
 import { mount } from '@vue/test-utils';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { GAME_CATALOG_ANCHOR_ID } from './common/catalogAnchor.js';
 import App from './App.vue';
+import {
+  HERO_CTA_LABEL,
+  HERO_HEADLINE,
+  HERO_SUPPORTING,
+} from './common/__fixtures__/heroCopy.js';
+import { GAME_CATALOG_ANCHOR_ID } from './common/catalogAnchor.js';
+import { catalogScroll } from './utils/scrollToCatalog.js';
 
-const HERO_SECTION = 'section[aria-labelledby="hero-headline"]';
+const findHeroSection = wrapper => wrapper.find('section[aria-labelledby="hero-headline"]');
+
+const findSearchControl = wrapper => wrapper.find('input[aria-label="Search games"]');
+
+const precedesInDocument = (earlier, later) =>
+  Boolean(earlier.compareDocumentPosition(later) & Node.DOCUMENT_POSITION_FOLLOWING);
+
+// Replace game cards with a light stub so catalog-composition tests exercise the
+// hero and catalog controls without pulling in FontAwesome / v-lazy game-card chrome.
+const catalogCompositionStubs = {
+  AppNavigation: { template: '<nav aria-label="Main" />' },
+  GameItem: { template: '<div data-test="game-item-stub" />' },
+};
 
 describe('App', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   const mountAppInDocument = options => {
     const wrapper = mount(App, options);
     document.body.appendChild(wrapper.element);
@@ -39,32 +61,31 @@ describe('App', () => {
   it('renders HeroBanner above catalog search and category filter controls', () => {
     const wrapper = mount(App, {
       global: {
-        stubs: {
-          AppNavigation: { template: '<nav />' },
-        },
+        stubs: catalogCompositionStubs,
       },
     });
 
     const main = wrapper.find('main');
-    const heroSection = main.get('#hero-headline').element.closest('section');
-    const catalogAnchor = main.get(`#${GAME_CATALOG_ANCHOR_ID}`);
+    const heroSection = findHeroSection(main);
+    const searchInput = findSearchControl(main);
+    const categorySelect = main.find('select');
 
-    expect(main.get('#hero-headline').text()).toBe('Online Casino');
-    expect(main.get(`${HERO_SECTION} p`).text()).toBe('Browse our game catalog');
-    expect(main.get(`${HERO_SECTION} button`).text()).toBe('Browse games');
-    expect(main.get('input[placeholder="Search..."]').exists()).toBe(true);
-    expect(main.get('select').exists()).toBe(true);
-    expect(
-      heroSection.compareDocumentPosition(catalogAnchor.element) & Node.DOCUMENT_POSITION_FOLLOWING,
-    ).toBeTruthy();
+    expect(heroSection.exists()).toBe(true);
+    expect(heroSection.get('h1').text()).toBe(HERO_HEADLINE);
+    expect(heroSection.get('p').text()).toBe(HERO_SUPPORTING);
+    expect(heroSection.get('button').text()).toBe(HERO_CTA_LABEL);
+    expect(searchInput.exists()).toBe(true);
+    expect(categorySelect.exists()).toBe(true);
+    expect(precedesInDocument(heroSection.element, searchInput.element)).toBe(true);
+    expect(precedesInDocument(heroSection.element, categorySelect.element)).toBe(true);
   });
 
   it('exposes a catalog scroll anchor and scrolls to it when Browse games is activated', async () => {
+    vi.spyOn(catalogScroll, 'supportsSmoothScroll').mockReturnValue(true);
+
     const { wrapper, cleanup } = mountAppInDocument({
       global: {
-        stubs: {
-          AppNavigation: { template: '<nav />' },
-        },
+        stubs: catalogCompositionStubs,
       },
     });
 
@@ -75,7 +96,7 @@ describe('App', () => {
     const scrollIntoView = vi.fn();
     catalogAnchor.element.scrollIntoView = scrollIntoView;
 
-    await wrapper.get(`${HERO_SECTION} button`).trigger('click');
+    await findHeroSection(wrapper).get('button').trigger('click');
 
     expect(scrollIntoView).toHaveBeenCalledWith({
       behavior: 'smooth',
@@ -88,11 +109,11 @@ describe('App', () => {
   it.each(['Enter', ' '])(
     'scrolls to the catalog anchor when Browse games is activated with %j',
     async key => {
+      vi.spyOn(catalogScroll, 'supportsSmoothScroll').mockReturnValue(true);
+
       const { wrapper, cleanup } = mountAppInDocument({
         global: {
-          stubs: {
-            AppNavigation: { template: '<nav />' },
-          },
+          stubs: catalogCompositionStubs,
         },
       });
 
@@ -102,7 +123,7 @@ describe('App', () => {
       const scrollIntoView = vi.fn();
       catalogAnchor.element.scrollIntoView = scrollIntoView;
 
-      await wrapper.get(`${HERO_SECTION} button`).trigger('keydown', { key });
+      await findHeroSection(wrapper).get('button').trigger('keydown', { key });
 
       expect(scrollIntoView).toHaveBeenCalledWith({
         behavior: 'smooth',
@@ -119,13 +140,14 @@ describe('App', () => {
       vi.doUnmock('./components/Games/data.js');
     });
 
-    it('renders HeroBanner when the catalog list shows zero games', async () => {
+    it('renders HeroBanner when the catalog list holds zero games', async () => {
       vi.doMock('./components/Games/data.js', () => ({
         default: [],
       }));
       vi.resetModules();
 
       const { default: AppWithEmptyCatalog } = await import('./App.vue');
+      const { default: EmptyCatalogGameItem } = await import('./components/Games/GameItem.vue');
       const wrapper = mount(AppWithEmptyCatalog, {
         global: {
           stubs: {
@@ -134,11 +156,13 @@ describe('App', () => {
         },
       });
 
-      expect(wrapper.get(HERO_SECTION).exists()).toBe(true);
-      expect(wrapper.get('#hero-headline').text()).toBe('Online Casino');
-      expect(wrapper.get(`${HERO_SECTION} p`).text()).toBe('Browse our game catalog');
-      expect(wrapper.get(`${HERO_SECTION} button`).text()).toBe('Browse games');
-      expect(wrapper.find('.grid-layout').element.children.length).toBe(0);
+      const heroSection = findHeroSection(wrapper);
+
+      expect(heroSection.exists()).toBe(true);
+      expect(heroSection.get('h1').text()).toBe(HERO_HEADLINE);
+      expect(heroSection.get('p').text()).toBe(HERO_SUPPORTING);
+      expect(heroSection.get('button').text()).toBe(HERO_CTA_LABEL);
+      expect(wrapper.findAllComponents(EmptyCatalogGameItem).length).toBe(0);
     });
   });
 });
