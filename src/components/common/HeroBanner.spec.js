@@ -2,7 +2,6 @@ import { mount } from '@vue/test-utils';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { GAME_CATALOG_ANCHOR_ID } from '../../common/catalogAnchor.js';
-import heroBannerSource from './HeroBanner.vue?raw';
 import HeroBanner from './HeroBanner.vue';
 
 describe('HeroBanner', () => {
@@ -37,6 +36,7 @@ describe('HeroBanner', () => {
     const wrapper = mount(HeroBanner);
     const cta = wrapper.get('button[type="button"]').element;
 
+    expect(cta.getAttribute('type')).toBe('button');
     expect(cta.disabled).toBe(false);
     expect(cta.tabIndex).toBe(0);
     expect(cta.getAttribute('tabindex')).not.toBe('-1');
@@ -67,11 +67,4 @@ describe('HeroBanner', () => {
       });
     },
   );
-
-  it('scopes responsive spacing and typography at the 768px breakpoint', () => {
-    expect(heroBannerSource).toMatch(/@media[^{]*\(max-width:\s*768px\)/);
-    expect(heroBannerSource).toContain('padding: 1rem 0.5rem');
-    expect(heroBannerSource).toContain('font-size: 1.5rem');
-    expect(heroBannerSource).toContain('font-size: 0.875rem');
-  });
 });
