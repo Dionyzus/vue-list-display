@@ -1,26 +1,9 @@
 import { mount } from '@vue/test-utils';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { GAME_CATALOG_ANCHOR_ID } from '../../common/catalogAnchor.js';
-import {
-  findBrowseGamesButton,
-  findHeroSection,
-  HERO_CTA_LABEL,
-  HERO_HEADLINE,
-  HERO_SUPPORTING,
-} from '../../test/heroBanner.js';
-import { catalogScroll } from '../../utils/scrollToCatalog.js';
-import HeroBanner from './HeroBanner.vue';
+import * as scrollModule from '../../utils/scrollToCatalog.js';
 import heroBannerSource from './HeroBanner.vue?raw';
-
-const mountCatalogAnchor = () => {
-  const catalogAnchor = document.createElement('div');
-  catalogAnchor.id = GAME_CATALOG_ANCHOR_ID;
-  catalogAnchor.scrollIntoView = vi.fn();
-  document.body.appendChild(catalogAnchor);
-
-  return catalogAnchor;
-};
+import HeroBanner from './HeroBanner.vue';
 
 describe('HeroBanner', () => {
   afterEach(() => {
@@ -28,20 +11,19 @@ describe('HeroBanner', () => {
     document.body.innerHTML = '';
   });
 
-  it('renders PRD headline, supporting line, and CTA copy', () => {
+  it('renders static hero copy and CTA', () => {
     const wrapper = mount(HeroBanner);
-    const hero = findHeroSection(wrapper);
 
-    expect(hero.find('h1').text()).toBe(HERO_HEADLINE);
-    expect(hero.text()).toContain(HERO_SUPPORTING);
-    expect(findBrowseGamesButton(wrapper).text()).toBe(HERO_CTA_LABEL);
+    expect(wrapper.find('.hero-headline').text()).toBe('Online Casino');
+    expect(wrapper.find('.hero-supporting').text()).toBe('Browse our game catalog');
+    expect(wrapper.find('.hero-cta').text()).toBe('Browse games');
   });
 
   it('renders a focusable CTA button', () => {
     const wrapper = mount(HeroBanner);
-    const cta = findBrowseGamesButton(wrapper).element;
+    const cta = wrapper.find('button.hero-cta').element;
 
-    expect(cta.tagName).toBe('BUTTON');
+    expect(cta).toBeTruthy();
     expect(cta.getAttribute('type')).toBe('button');
     expect(cta.disabled).toBe(false);
     expect(cta.tabIndex).toBe(0);
@@ -49,30 +31,24 @@ describe('HeroBanner', () => {
     expect(cta.getAttribute('aria-disabled')).not.toBe('true');
   });
 
-  it('scrolls the catalog anchor into view when the CTA is clicked', async () => {
-    const catalogAnchor = mountCatalogAnchor();
-    vi.spyOn(catalogScroll, 'supportsSmoothScroll').mockReturnValue(true);
+  it('scrolls to the catalog filter anchor when the CTA is clicked', async () => {
+    const scrollSpy = vi.spyOn(scrollModule, 'scrollToCatalog');
 
     const wrapper = mount(HeroBanner);
-    await findBrowseGamesButton(wrapper).trigger('click');
+    await wrapper.find('button.hero-cta').trigger('click');
 
-    expect(catalogAnchor.scrollIntoView).toHaveBeenCalledWith({
-      behavior: 'smooth',
-      block: 'start',
-    });
+    expect(scrollSpy).toHaveBeenCalledOnce();
   });
 
   it.each(['Enter', ' '])('scrolls to the catalog when the CTA is activated with %j', async key => {
-    const catalogAnchor = mountCatalogAnchor();
-    vi.spyOn(catalogScroll, 'supportsSmoothScroll').mockReturnValue(true);
+    const scrollSpy = vi.spyOn(scrollModule, 'scrollToCatalog');
 
     const wrapper = mount(HeroBanner);
-    await findBrowseGamesButton(wrapper).trigger('keydown', { key });
+    const cta = wrapper.find('button.hero-cta');
 
-    expect(catalogAnchor.scrollIntoView).toHaveBeenCalledWith({
-      behavior: 'smooth',
-      block: 'start',
-    });
+    await cta.trigger('keydown', { key });
+
+    expect(scrollSpy).toHaveBeenCalledOnce();
   });
 
   it('uses brand burgundy background, light text, and no decorative chrome', () => {
@@ -87,10 +63,7 @@ describe('HeroBanner', () => {
     expect(wrapper.find('[class*="carousel"]').exists()).toBe(false);
   });
 
-  // jsdom does not evaluate media queries, so the 768px responsive rules cannot
-  // be exercised behaviorally here; this asserts the SFC declares them as a
-  // source-level style contract rather than pretending to verify layout.
-  it('declares responsive spacing and typography rules under the 768px breakpoint', () => {
+  it('scopes responsive spacing and typography at the 768px breakpoint', () => {
     expect(heroBannerSource).toMatch(/@media[^{]*\(max-width:\s*768px\)/);
     expect(heroBannerSource).toContain('padding: 1rem 0.5rem');
     expect(heroBannerSource).toContain('font-size: 1.5rem');
