@@ -1,24 +1,10 @@
 import { mount } from '@vue/test-utils';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import App from './App.vue';
 import { GAME_CATALOG_ANCHOR_ID } from './common/catalogAnchor.js';
-import GameItem from './components/Games/GameItem.vue';
-import { expectHeroCopy, findBrowseGamesButton, findHeroSection } from './test/heroBanner.js';
-import { catalogScroll } from './utils/scrollToCatalog.js';
-
-const findCatalogSearchInput = wrapper => wrapper.find('input[placeholder="Search..."]');
-const findCategoryFilter = wrapper => wrapper.find('select');
-
-const expectNodeFollows = (preceding, following) => {
-  expect(preceding.compareDocumentPosition(following) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-};
+import App from './App.vue';
 
 describe('App', () => {
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
-
   const mountAppInDocument = options => {
     const wrapper = mount(App, options);
     document.body.appendChild(wrapper.element);
@@ -48,31 +34,28 @@ describe('App', () => {
     expect(wrapper.find('main').find('[data-test="games-stub"]').exists()).toBe(true);
   });
 
-  it('renders the hero above catalog search and category filter controls', () => {
+  it('renders HeroBanner above the catalog list in the content slot', () => {
     const wrapper = mount(App, {
       global: {
         stubs: {
           AppNavigation: { template: '<nav />' },
+          GamesList: { template: '<div data-test="games-stub" />' },
         },
       },
     });
 
     const main = wrapper.find('main');
-    const hero = findHeroSection(main);
-    const searchInput = findCatalogSearchInput(wrapper);
-    const categoryFilter = findCategoryFilter(wrapper);
+    const children = main.element.children;
 
-    expectHeroCopy(hero);
-    expect(searchInput.exists()).toBe(true);
-    expect(categoryFilter.exists()).toBe(true);
-    expect(main.element.firstElementChild).toBe(hero.element);
-    expectNodeFollows(hero.element, searchInput.element);
-    expectNodeFollows(hero.element, categoryFilter.element);
+    expect(main.find('.hero-headline').text()).toBe('Online Casino');
+    expect(main.find('.hero-supporting').text()).toBe('Browse our game catalog');
+    expect(main.find('.hero-cta').text()).toBe('Browse games');
+    expect(main.find('[data-test="games-stub"]').exists()).toBe(true);
+    expect(children[0].classList.contains('hero')).toBe(true);
+    expect(children[1].getAttribute('data-test')).toBe('games-stub');
   });
 
   it('exposes a catalog scroll anchor and scrolls to it when Browse games is activated', async () => {
-    vi.spyOn(catalogScroll, 'supportsSmoothScroll').mockReturnValue(true);
-
     const { wrapper, cleanup } = mountAppInDocument({
       global: {
         stubs: {
@@ -88,7 +71,7 @@ describe('App', () => {
     const scrollIntoView = vi.fn();
     catalogAnchor.element.scrollIntoView = scrollIntoView;
 
-    await findBrowseGamesButton(wrapper).trigger('click');
+    await wrapper.find('.hero-cta').trigger('click');
 
     expect(scrollIntoView).toHaveBeenCalledWith({
       behavior: 'smooth',
@@ -101,8 +84,6 @@ describe('App', () => {
   it.each(['Enter', ' '])(
     'scrolls to the catalog anchor when Browse games is activated with %j',
     async key => {
-      vi.spyOn(catalogScroll, 'supportsSmoothScroll').mockReturnValue(true);
-
       const { wrapper, cleanup } = mountAppInDocument({
         global: {
           stubs: {
@@ -117,7 +98,7 @@ describe('App', () => {
       const scrollIntoView = vi.fn();
       catalogAnchor.element.scrollIntoView = scrollIntoView;
 
-      await findBrowseGamesButton(wrapper).trigger('keydown', { key });
+      await wrapper.find('.hero-cta').trigger('keydown', { key });
 
       expect(scrollIntoView).toHaveBeenCalledWith({
         behavior: 'smooth',
@@ -149,9 +130,11 @@ describe('App', () => {
         },
       });
 
-      const hero = findHeroSection(wrapper);
-      expectHeroCopy(hero);
-      expect(wrapper.findAllComponents(GameItem)).toHaveLength(0);
+      expect(wrapper.find('section.hero').exists()).toBe(true);
+      expect(wrapper.find('.hero-headline').text()).toBe('Online Casino');
+      expect(wrapper.find('.hero-supporting').text()).toBe('Browse our game catalog');
+      expect(wrapper.find('.hero-cta').text()).toBe('Browse games');
+      expect(wrapper.find('.grid-item').exists()).toBe(false);
     });
   });
 });
