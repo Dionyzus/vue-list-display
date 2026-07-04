@@ -1,3 +1,9 @@
+<script>
+// Module-scoped so each mounted filter gets a distinct id even when several
+// filters share the same label.
+let filterIdSeq = 0;
+</script>
+
 <script setup>
 import { ref } from 'vue';
 
@@ -9,13 +15,16 @@ const emit = defineEmits(['onFilterChange']);
 
 const selectedFilter = ref('');
 
+// Associate the visible label with the select so it exposes an accessible name.
+const fieldId = `app-filter-${(filterIdSeq += 1)}`;
+
 const handleFilterChange = () => emit('onFilterChange', selectedFilter.value);
 </script>
 
 <template>
   <div class="filter">
-    <label class="label">{{ label }}:</label>
-    <select v-model="selectedFilter" @change="handleFilterChange">
+    <label class="label" :for="fieldId">{{ label }}:</label>
+    <select :id="fieldId" v-model="selectedFilter" @change="handleFilterChange">
       <option value="">All</option>
       <option v-for="filter in availableFilters" :value="filter" :key="filter">
         {{ filter }}

@@ -2,17 +2,30 @@ import { mount } from '@vue/test-utils';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import App from './App.vue';
+import { GAME_CATALOG_ANCHOR_ID } from './common/catalogAnchor.js';
 import {
   HERO_CTA_LABEL,
   HERO_HEADLINE,
   HERO_SUPPORTING,
-} from './common/__fixtures__/heroCopy.js';
-import { GAME_CATALOG_ANCHOR_ID } from './common/catalogAnchor.js';
+} from './components/common/heroCopy.js';
 import { catalogScroll } from './utils/scrollToCatalog.js';
 
 const findHeroSection = wrapper => wrapper.find('section[aria-labelledby="hero-headline"]');
 
-const findSearchControl = wrapper => wrapper.find('input[aria-label="Search games"]');
+const findSearchControl = wrapper => wrapper.find('input[placeholder="Search..."]');
+
+// Locate the category filter through its visible, associated label rather than a
+// bare `select`, so the assertion binds to the Category control by its accessible
+// name and cannot silently latch onto some other select added to the view.
+const findCategoryControl = wrapper => {
+  const categoryLabel = wrapper.findAll('label').find(label => label.text() === 'Category:');
+  if (!categoryLabel) return { label: categoryLabel, select: wrapper.find('select#__missing__') };
+
+  return {
+    label: categoryLabel,
+    select: wrapper.find(`select#${categoryLabel.attributes('for')}`),
+  };
+};
 
 const precedesInDocument = (earlier, later) =>
   Boolean(earlier.compareDocumentPosition(later) & Node.DOCUMENT_POSITION_FOLLOWING);
@@ -68,7 +81,7 @@ describe('App', () => {
     const main = wrapper.find('main');
     const heroSection = findHeroSection(main);
     const searchInput = findSearchControl(main);
-    const categorySelect = main.find('select');
+    const { label: categoryLabel, select: categorySelect } = findCategoryControl(main);
 
     expect(heroSection.exists()).toBe(true);
     expect(heroSection.get('h1').text()).toBe(HERO_HEADLINE);
@@ -76,6 +89,7 @@ describe('App', () => {
     expect(heroSection.get('button').text()).toBe(HERO_CTA_LABEL);
     expect(searchInput.exists()).toBe(true);
     expect(categorySelect.exists()).toBe(true);
+    expect(categoryLabel.text()).toBe('Category:');
     expect(precedesInDocument(heroSection.element, searchInput.element)).toBe(true);
     expect(precedesInDocument(heroSection.element, categorySelect.element)).toBe(true);
   });

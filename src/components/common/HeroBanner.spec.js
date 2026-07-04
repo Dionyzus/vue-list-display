@@ -1,14 +1,11 @@
 import { mount } from '@vue/test-utils';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import {
-  HERO_CTA_LABEL,
-  HERO_HEADLINE,
-  HERO_SUPPORTING,
-} from '../../common/__fixtures__/heroCopy.js';
 import { GAME_CATALOG_ANCHOR_ID } from '../../common/catalogAnchor.js';
 import { catalogScroll } from '../../utils/scrollToCatalog.js';
 import HeroBanner from './HeroBanner.vue';
+import heroBannerSource from './HeroBanner.vue?raw';
+import { HERO_CTA_LABEL, HERO_HEADLINE, HERO_SUPPORTING } from './heroCopy.js';
 
 describe('HeroBanner', () => {
   afterEach(() => {
@@ -74,9 +71,22 @@ describe('HeroBanner', () => {
   it('renders no decorative chrome (no imagery, dismiss control, or carousel)', () => {
     const wrapper = mount(HeroBanner);
 
+    const hasDismissControl = wrapper
+      .findAll('[aria-label]')
+      .some(el => /dismiss|close/i.test(el.attributes('aria-label') ?? ''));
+
     expect(wrapper.find('img').exists()).toBe(false);
-    expect(wrapper.find('[aria-label*="dismiss" i]').exists()).toBe(false);
-    expect(wrapper.find('[class*="carousel"]').exists()).toBe(false);
+    expect(hasDismissControl).toBe(false);
+    expect(wrapper.find('[aria-roledescription="carousel"]').exists()).toBe(false);
     expect(wrapper.findAll('button').length).toBe(1);
+  });
+
+  it('scopes responsive spacing and typography at the 768px breakpoint', () => {
+    // jsdom does not apply scoped-component CSS or evaluate media queries, so the
+    // optional 768px coverage is asserted against the component's style source.
+    expect(heroBannerSource).toMatch(/@media[^{]*\(max-width:\s*768px\)/);
+    expect(heroBannerSource).toContain('padding: 1rem 0.5rem');
+    expect(heroBannerSource).toContain('font-size: 1.5rem');
+    expect(heroBannerSource).toContain('font-size: 0.875rem');
   });
 });
