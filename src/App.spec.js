@@ -4,6 +4,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { GAME_CATALOG_ANCHOR_ID } from './common/catalogAnchor.js';
 import App from './App.vue';
 
+const HERO_SECTION = 'section[aria-labelledby="hero-headline"]';
+
 describe('App', () => {
   const mountAppInDocument = options => {
     const wrapper = mount(App, options);
@@ -34,25 +36,27 @@ describe('App', () => {
     expect(wrapper.find('main').find('[data-test="games-stub"]').exists()).toBe(true);
   });
 
-  it('renders HeroBanner above the catalog list in the content slot', () => {
+  it('renders HeroBanner above catalog search and category filter controls', () => {
     const wrapper = mount(App, {
       global: {
         stubs: {
           AppNavigation: { template: '<nav />' },
-          GamesList: { template: '<div data-test="games-stub" />' },
         },
       },
     });
 
     const main = wrapper.find('main');
-    const children = main.element.children;
+    const heroSection = main.get('#hero-headline').element.closest('section');
+    const catalogAnchor = main.get(`#${GAME_CATALOG_ANCHOR_ID}`);
 
-    expect(main.find('.hero-headline').text()).toBe('Online Casino');
-    expect(main.find('.hero-supporting').text()).toBe('Browse our game catalog');
-    expect(main.find('.hero-cta').text()).toBe('Browse games');
-    expect(main.find('[data-test="games-stub"]').exists()).toBe(true);
-    expect(children[0].classList.contains('hero')).toBe(true);
-    expect(children[1].getAttribute('data-test')).toBe('games-stub');
+    expect(main.get('#hero-headline').text()).toBe('Online Casino');
+    expect(main.get(`${HERO_SECTION} p`).text()).toBe('Browse our game catalog');
+    expect(main.get(`${HERO_SECTION} button`).text()).toBe('Browse games');
+    expect(main.get('input[placeholder="Search..."]').exists()).toBe(true);
+    expect(main.get('select').exists()).toBe(true);
+    expect(
+      heroSection.compareDocumentPosition(catalogAnchor.element) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
   });
 
   it('exposes a catalog scroll anchor and scrolls to it when Browse games is activated', async () => {
@@ -71,7 +75,7 @@ describe('App', () => {
     const scrollIntoView = vi.fn();
     catalogAnchor.element.scrollIntoView = scrollIntoView;
 
-    await wrapper.find('.hero-cta').trigger('click');
+    await wrapper.get(`${HERO_SECTION} button`).trigger('click');
 
     expect(scrollIntoView).toHaveBeenCalledWith({
       behavior: 'smooth',
@@ -98,7 +102,7 @@ describe('App', () => {
       const scrollIntoView = vi.fn();
       catalogAnchor.element.scrollIntoView = scrollIntoView;
 
-      await wrapper.find('.hero-cta').trigger('keydown', { key });
+      await wrapper.get(`${HERO_SECTION} button`).trigger('keydown', { key });
 
       expect(scrollIntoView).toHaveBeenCalledWith({
         behavior: 'smooth',
@@ -130,11 +134,11 @@ describe('App', () => {
         },
       });
 
-      expect(wrapper.find('section.hero').exists()).toBe(true);
-      expect(wrapper.find('.hero-headline').text()).toBe('Online Casino');
-      expect(wrapper.find('.hero-supporting').text()).toBe('Browse our game catalog');
-      expect(wrapper.find('.hero-cta').text()).toBe('Browse games');
-      expect(wrapper.find('.grid-item').exists()).toBe(false);
+      expect(wrapper.get(HERO_SECTION).exists()).toBe(true);
+      expect(wrapper.get('#hero-headline').text()).toBe('Online Casino');
+      expect(wrapper.get(`${HERO_SECTION} p`).text()).toBe('Browse our game catalog');
+      expect(wrapper.get(`${HERO_SECTION} button`).text()).toBe('Browse games');
+      expect(wrapper.find('.grid-layout').element.children.length).toBe(0);
     });
   });
 });
