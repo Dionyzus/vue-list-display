@@ -38,12 +38,13 @@ describe('App', () => {
   const getHeroCta = wrapper =>
     wrapper.get('section[aria-labelledby="hero-headline"] button[type="button"]');
 
-  const findCategoryFilter = wrapper => {
-    const categoryLabel = wrapper
-      .findAll('label')
-      .find(label => label.text().includes('Category'));
+  const getCatalogControls = wrapper => {
+    const catalog = wrapper.get(`#${GAME_CATALOG_ANCHOR_ID}`);
 
-    return categoryLabel.element.parentElement.querySelector('select');
+    return {
+      searchInput: catalog.get('input'),
+      categoryFilter: catalog.get('select'),
+    };
   };
 
   it('mounts the app shell with header and content regions', () => {
@@ -64,8 +65,7 @@ describe('App', () => {
     const wrapper = mountMainView();
 
     const hero = wrapper.get('section[aria-labelledby="hero-headline"]');
-    const searchInput = wrapper.get('input[placeholder="Search..."]');
-    const categoryFilter = findCategoryFilter(wrapper);
+    const { searchInput, categoryFilter } = getCatalogControls(wrapper);
 
     expect(hero.get('#hero-headline').text()).toBe('Online Casino');
     expect(hero.get('p').text()).toBe('Browse our game catalog');
@@ -76,7 +76,7 @@ describe('App', () => {
       hero.element.compareDocumentPosition(searchInput.element) &
       Node.DOCUMENT_POSITION_FOLLOWING;
     const heroBeforeCategory =
-      hero.element.compareDocumentPosition(categoryFilter) &
+      hero.element.compareDocumentPosition(categoryFilter.element) &
       Node.DOCUMENT_POSITION_FOLLOWING;
 
     expect(heroBeforeSearch).toBeTruthy();
@@ -162,6 +162,7 @@ describe('App', () => {
       expect(hero.get('#hero-headline').text()).toBe('Online Casino');
       expect(hero.get('p').text()).toBe('Browse our game catalog');
       expect(hero.get('button[type="button"]').text()).toBe('Browse games');
+      expect(wrapper.findAllComponents({ name: 'GameItem' })).toHaveLength(0);
     });
   });
 });

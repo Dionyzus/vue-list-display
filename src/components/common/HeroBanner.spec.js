@@ -3,6 +3,21 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { GAME_CATALOG_ANCHOR_ID } from '../../common/catalogAnchor.js';
 import HeroBanner from './HeroBanner.vue';
+import heroBannerSource from './HeroBanner.vue?raw';
+
+const parseScopedStyleSheet = source => {
+  const styleBlock = source.match(/<style[^>]*>([\s\S]*?)<\/style>/i);
+  const styleEl = document.createElement('style');
+  styleEl.textContent = styleBlock ? styleBlock[1] : '';
+  document.head.appendChild(styleEl);
+
+  return { sheet: styleEl.sheet, cleanup: () => styleEl.remove() };
+};
+
+const findRule = (rules, selector) =>
+  Array.from(rules).find(rule => rule.selectorText === selector);
+
+const fontSizeOf = rule => parseFloat(rule.style.getPropertyValue('font-size'));
 
 describe('HeroBanner', () => {
   afterEach(() => {
@@ -67,4 +82,36 @@ describe('HeroBanner', () => {
       });
     },
   );
+
+  it('tightens hero spacing and typography at the 768px breakpoint', () => {
+    const { sheet, cleanup } = parseScopedStyleSheet(heroBannerSource);
+
+    try {
+      const topLevelRules = Array.from(sheet.cssRules);
+      const mobileBreakpoint = topLevelRules.find(
+        rule =>
+          rule.type === CSSRule.MEDIA_RULE &&
+          rule.media.mediaText.includes('max-width: 768px'),
+      );
+
+      expect(mobileBreakpoint, 'expected a max-width: 768px media query').toBeTruthy();
+
+      const baseHeadline = findRule(topLevelRules, '.hero-headline');
+      const baseSupporting = findRule(topLevelRules, '.hero-supporting');
+      const baseHero = findRule(topLevelRules, '.hero');
+
+      const mobileRules = mobileBreakpoint.cssRules;
+      const mobileHeadline = findRule(mobileRules, '.hero-headline');
+      const mobileSupporting = findRule(mobileRules, '.hero-supporting');
+      const mobileHero = findRule(mobileRules, '.hero');
+
+      expect(fontSizeOf(mobileHeadline)).toBeLessThan(fontSizeOf(baseHeadline));
+      expect(fontSizeOf(mobileSupporting)).toBeLessThan(fontSizeOf(baseSupporting));
+      expect(mobileHero.style.getPropertyValue('padding')).not.toBe(
+        baseHero.style.getPropertyValue('padding'),
+      );
+    } finally {
+      cleanup();
+    }
+  });
 });
