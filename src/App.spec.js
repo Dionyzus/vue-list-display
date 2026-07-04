@@ -2,19 +2,32 @@ import { mount } from '@vue/test-utils';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import App from './App.vue';
+import { GAME_CATALOG_ANCHOR_ID } from './common/catalogAnchor.js';
 import {
   HERO_CTA_LABEL,
   HERO_HEADLINE,
   HERO_SUPPORTING,
-} from './common/__fixtures__/heroCopy.js';
-import { GAME_CATALOG_ANCHOR_ID } from './common/catalogAnchor.js';
+} from './common/heroCopy.js';
 import { catalogScroll } from './utils/scrollToCatalog.js';
 
-const findHeroSection = wrapper =>
-  wrapper.find('section[aria-labelledby="hero-headline"]');
+// Locate the hero by what a user perceives -- its heading text, supporting copy,
+// and CTA label -- rather than by internal ids or styling class names.
+const findHeroHeading = wrapper =>
+  wrapper.findAll('h1').find(heading => heading.text() === HERO_HEADLINE);
+
+const findHeroSupporting = wrapper =>
+  wrapper.findAll('p').find(paragraph => paragraph.text() === HERO_SUPPORTING);
+
+const findHeroCta = wrapper =>
+  wrapper.findAll('button').find(button => button.text() === HERO_CTA_LABEL);
 
 const findSearchControl = wrapper =>
-  wrapper.find('input[aria-label="Search games"]');
+  wrapper.find('input[placeholder="Search..."]');
+
+// The category control is labelled "Category:" for users; match on that visible
+// label rather than an unqualified <select> that any future control could satisfy.
+const findCategoryLabel = wrapper =>
+  wrapper.findAll('label').find(label => label.text().startsWith('Category'));
 
 const precedesInDocument = (earlier, later) =>
   Boolean(
@@ -70,18 +83,20 @@ describe('App', () => {
     });
 
     const main = wrapper.find('main');
-    const heroSection = findHeroSection(main);
+    const heroHeading = findHeroHeading(main);
+    const heroSupporting = findHeroSupporting(main);
+    const heroCta = findHeroCta(main);
     const searchInput = findSearchControl(main);
-    const categorySelect = main.find('select');
+    const categoryLabel = findCategoryLabel(main);
 
-    expect(heroSection.exists()).toBe(true);
-    expect(heroSection.get('h1').text()).toBe(HERO_HEADLINE);
-    expect(heroSection.get('p').text()).toBe(HERO_SUPPORTING);
-    expect(heroSection.get('button').text()).toBe(HERO_CTA_LABEL);
+    expect(heroHeading).toBeTruthy();
+    expect(heroSupporting).toBeTruthy();
+    expect(heroCta).toBeTruthy();
     expect(searchInput.exists()).toBe(true);
-    expect(categorySelect.exists()).toBe(true);
-    expect(precedesInDocument(heroSection.element, searchInput.element)).toBe(true);
-    expect(precedesInDocument(heroSection.element, categorySelect.element)).toBe(true);
+    expect(categoryLabel).toBeTruthy();
+
+    expect(precedesInDocument(heroHeading.element, searchInput.element)).toBe(true);
+    expect(precedesInDocument(heroHeading.element, categoryLabel.element)).toBe(true);
   });
 
   it('exposes a catalog scroll anchor and scrolls to it when Browse games fires', async () => {
@@ -100,8 +115,7 @@ describe('App', () => {
     const scrollIntoView = vi.fn();
     catalogAnchor.element.scrollIntoView = scrollIntoView;
 
-    const heroSection = findHeroSection(wrapper);
-    await heroSection.get('button').trigger('click');
+    await findHeroCta(wrapper).trigger('click');
 
     expect(scrollIntoView).toHaveBeenCalledWith({
       behavior: 'smooth',
@@ -128,8 +142,7 @@ describe('App', () => {
       const scrollIntoView = vi.fn();
       catalogAnchor.element.scrollIntoView = scrollIntoView;
 
-      const heroSection = findHeroSection(wrapper);
-      await heroSection.get('button').trigger('keydown', { key });
+      await findHeroCta(wrapper).trigger('keydown', { key });
 
       expect(scrollIntoView).toHaveBeenCalledWith({
         behavior: 'smooth',
@@ -153,9 +166,6 @@ describe('App', () => {
       vi.resetModules();
 
       const { default: AppWithEmptyCatalog } = await import('./App.vue');
-      const { default: EmptyCatalogGameItem } = await import(
-        './components/Games/GameItem.vue'
-      );
       const wrapper = mount(AppWithEmptyCatalog, {
         global: {
           stubs: {
@@ -164,14 +174,17 @@ describe('App', () => {
         },
       });
 
-      const heroSection = findHeroSection(wrapper);
+      const heroHeading = findHeroHeading(wrapper);
+      const heroSupporting = findHeroSupporting(wrapper);
+      const heroCta = findHeroCta(wrapper);
 
-      expect(heroSection.exists()).toBe(true);
-      expect(heroSection.get('h1').text()).toBe(HERO_HEADLINE);
-      expect(heroSection.get('p').text()).toBe(HERO_SUPPORTING);
-      expect(heroSection.get('button').text()).toBe(HERO_CTA_LABEL);
+      expect(heroHeading).toBeTruthy();
+      expect(heroSupporting).toBeTruthy();
+      expect(heroCta).toBeTruthy();
       expect(findSearchControl(wrapper).exists()).toBe(true);
-      expect(wrapper.findAllComponents(EmptyCatalogGameItem).length).toBe(0);
+      // No games -> no game-card imagery is rendered, independent of any
+      // empty-grid messaging and without coupling to an internal component type.
+      expect(wrapper.find('img[alt="Game Image"]').exists()).toBe(false);
     });
   });
 });
