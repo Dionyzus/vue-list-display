@@ -1,10 +1,15 @@
 import { mount } from '@vue/test-utils';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { GAME_CATALOG_ANCHOR_ID } from './common/catalogAnchor.js';
 import App from './App.vue';
+import { GAME_CATALOG_ANCHOR_ID } from './common/catalogAnchor.js';
+import { catalogScroll } from './utils/scrollToCatalog.js';
 
 describe('App', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   const mountAppInDocument = options => {
     const wrapper = mount(App, options);
     document.body.appendChild(wrapper.element);
@@ -83,7 +88,7 @@ describe('App', () => {
     expect(heroBeforeCategory).toBeTruthy();
   });
 
-  it('exposes a catalog scroll anchor and scrolls to it when Browse games is activated', async () => {
+  it('exposes a catalog anchor and scrolls to it when Browse games is activated', async () => {
     const { wrapper, cleanup } = mountAppInDocument({
       global: {
         stubs: {
@@ -97,11 +102,12 @@ describe('App', () => {
 
     const scrollIntoView = vi.fn();
     catalogAnchor.element.scrollIntoView = scrollIntoView;
+    vi.spyOn(catalogScroll, 'supportsSmoothScroll').mockReturnValue(true);
 
     await getHeroCta(wrapper).trigger('click');
 
     expect(scrollIntoView).toHaveBeenCalledWith({
-      behavior: expect.stringMatching(/^(smooth|auto)$/),
+      behavior: 'smooth',
       block: 'start',
     });
 
@@ -124,11 +130,12 @@ describe('App', () => {
 
       const scrollIntoView = vi.fn();
       catalogAnchor.element.scrollIntoView = scrollIntoView;
+      vi.spyOn(catalogScroll, 'supportsSmoothScroll').mockReturnValue(true);
 
       await getHeroCta(wrapper).trigger('keydown', { key });
 
       expect(scrollIntoView).toHaveBeenCalledWith({
-        behavior: expect.stringMatching(/^(smooth|auto)$/),
+        behavior: 'smooth',
         block: 'start',
       });
 
@@ -162,7 +169,7 @@ describe('App', () => {
       expect(hero.get('#hero-headline').text()).toBe('Online Casino');
       expect(hero.get('p').text()).toBe('Browse our game catalog');
       expect(hero.get('button[type="button"]').text()).toBe('Browse games');
-      expect(wrapper.findAllComponents({ name: 'GameItem' })).toHaveLength(0);
+      expect(wrapper.findAll('button[aria-label="View Details"]')).toHaveLength(0);
     });
   });
 });
