@@ -1,29 +1,24 @@
 import { mount } from '@vue/test-utils';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { GAME_CATALOG_ANCHOR_ID } from './common/catalogAnchor.js';
 import App from './App.vue';
+import { GAME_CATALOG_ANCHOR_ID } from './common/catalogAnchor.js';
+import GameItem from './components/Games/GameItem.vue';
+import { expectHeroCopy, findBrowseGamesButton, findHeroSection } from './test/heroBanner.js';
+import { catalogScroll } from './utils/scrollToCatalog.js';
 
-const HERO_HEADLINE = 'Online Casino';
-const HERO_SUPPORTING = 'Browse our game catalog';
-const HERO_CTA_LABEL = 'Browse games';
-
-const findHeroSection = wrapper => wrapper.find('section[aria-labelledby="hero-headline"]');
-const findBrowseGamesButton = wrapper => wrapper.find('button', { text: HERO_CTA_LABEL });
 const findCatalogSearchInput = wrapper => wrapper.find('input[placeholder="Search..."]');
 const findCategoryFilter = wrapper => wrapper.find('select');
-
-const expectHeroCopy = hero => {
-  expect(hero.find('h1').text()).toBe(HERO_HEADLINE);
-  expect(hero.text()).toContain(HERO_SUPPORTING);
-  expect(hero.find('button').text()).toBe(HERO_CTA_LABEL);
-};
 
 const expectNodeFollows = (preceding, following) => {
   expect(preceding.compareDocumentPosition(following) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 };
 
 describe('App', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   const mountAppInDocument = options => {
     const wrapper = mount(App, options);
     document.body.appendChild(wrapper.element);
@@ -76,6 +71,8 @@ describe('App', () => {
   });
 
   it('exposes a catalog scroll anchor and scrolls to it when Browse games is activated', async () => {
+    vi.spyOn(catalogScroll, 'supportsSmoothScroll').mockReturnValue(true);
+
     const { wrapper, cleanup } = mountAppInDocument({
       global: {
         stubs: {
@@ -104,6 +101,8 @@ describe('App', () => {
   it.each(['Enter', ' '])(
     'scrolls to the catalog anchor when Browse games is activated with %j',
     async key => {
+      vi.spyOn(catalogScroll, 'supportsSmoothScroll').mockReturnValue(true);
+
       const { wrapper, cleanup } = mountAppInDocument({
         global: {
           stubs: {
@@ -152,7 +151,7 @@ describe('App', () => {
 
       const hero = findHeroSection(wrapper);
       expectHeroCopy(hero);
-      expect(wrapper.find('.grid-item').exists()).toBe(false);
+      expect(wrapper.findAllComponents(GameItem)).toHaveLength(0);
     });
   });
 });

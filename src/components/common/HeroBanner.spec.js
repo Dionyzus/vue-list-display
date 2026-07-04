@@ -2,16 +2,16 @@ import { mount } from '@vue/test-utils';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { GAME_CATALOG_ANCHOR_ID } from '../../common/catalogAnchor.js';
+import {
+  findBrowseGamesButton,
+  findHeroSection,
+  HERO_CTA_LABEL,
+  HERO_HEADLINE,
+  HERO_SUPPORTING,
+} from '../../test/heroBanner.js';
 import { catalogScroll } from '../../utils/scrollToCatalog.js';
-import heroBannerSource from './HeroBanner.vue?raw';
 import HeroBanner from './HeroBanner.vue';
-
-const HERO_HEADLINE = 'Online Casino';
-const HERO_SUPPORTING = 'Browse our game catalog';
-const HERO_CTA_LABEL = 'Browse games';
-
-const findHeroSection = wrapper => wrapper.find('section[aria-labelledby="hero-headline"]');
-const findBrowseGamesButton = wrapper => wrapper.find('button', { text: HERO_CTA_LABEL });
+import heroBannerSource from './HeroBanner.vue?raw';
 
 const mountCatalogAnchor = () => {
   const catalogAnchor = document.createElement('div');
@@ -87,7 +87,10 @@ describe('HeroBanner', () => {
     expect(wrapper.find('[class*="carousel"]').exists()).toBe(false);
   });
 
-  it('scopes responsive spacing and typography at the 768px breakpoint', () => {
+  // jsdom does not evaluate media queries, so the 768px responsive rules cannot
+  // be exercised behaviorally here; this asserts the SFC declares them as a
+  // source-level style contract rather than pretending to verify layout.
+  it('declares responsive spacing and typography rules under the 768px breakpoint', () => {
     expect(heroBannerSource).toMatch(/@media[^{]*\(max-width:\s*768px\)/);
     expect(heroBannerSource).toContain('padding: 1rem 0.5rem');
     expect(heroBannerSource).toContain('font-size: 1.5rem');
