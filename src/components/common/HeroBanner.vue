@@ -1,16 +1,11 @@
 <script setup>
-import {
-  HERO_CTA_LABEL,
-  HERO_HEADLINE,
-  HERO_SUPPORTING,
-} from '../../common/heroCopy.js';
 import { scrollToCatalog } from '../../utils/scrollToCatalog.js';
 </script>
 
 <template>
   <section class="hero" aria-labelledby="hero-headline">
-    <h1 id="hero-headline" class="hero-headline">{{ HERO_HEADLINE }}</h1>
-    <p class="hero-supporting">{{ HERO_SUPPORTING }}</p>
+    <h1 id="hero-headline" class="hero-headline">Online Casino</h1>
+    <p class="hero-supporting">Browse our game catalog</p>
     <button
       type="button"
       class="hero-cta"
@@ -18,7 +13,7 @@ import { scrollToCatalog } from '../../utils/scrollToCatalog.js';
       @keydown.enter.prevent="scrollToCatalog"
       @keydown.space.prevent="scrollToCatalog"
     >
-      {{ HERO_CTA_LABEL }}
+      Browse games
     </button>
   </section>
 </template>

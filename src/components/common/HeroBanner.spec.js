@@ -6,7 +6,7 @@ import {
   HERO_CTA_LABEL,
   HERO_HEADLINE,
   HERO_SUPPORTING,
-} from '../../common/heroCopy.js';
+} from '../../common/__fixtures__/heroCopy.js';
 import HeroBanner from './HeroBanner.vue';
 import heroBannerSource from './HeroBanner.vue?raw';
 

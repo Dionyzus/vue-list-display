@@ -7,7 +7,7 @@ import {
   HERO_CTA_LABEL,
   HERO_HEADLINE,
   HERO_SUPPORTING,
-} from './common/heroCopy.js';
+} from './common/__fixtures__/heroCopy.js';
 import { catalogScroll } from './utils/scrollToCatalog.js';
 
 // Locate the hero by what a user perceives -- its heading text, supporting copy,
